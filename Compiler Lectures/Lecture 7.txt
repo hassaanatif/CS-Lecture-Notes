@@ -1,0 +1,15 @@
+                                 =========================================================================
+                                 Lecture 7: Scanning:  Converting an NFA into a DFA (SUBSET CONSTRUCTION) PART 1          
+                                 =========================================================================
+
+
+===================================
+Number of possible paths in an NFA
+===================================
+- In terms of the number of possible paths, if n is the size of the string then in the worst case, we will have an expponential function of n depending on
+  the branching factor of n.
+
+=======================
+Screenshot reference
+=======================
+Screenshot #1946

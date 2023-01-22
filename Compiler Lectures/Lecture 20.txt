@@ -1,0 +1,185 @@
+
+                            ============================================================
+                             Compilers Lecture 20: Parsing (9): LR(1) Parsing, Part III
+                            ============================================================
+
+=================
+New Example
+=================
+Consider the following grammar: 
+0. Goal -> X 
+1. X -> Xab 
+2. X -> ab 
+
+//NOTE: doing LR(1) parsing for this grammar is going to be even more complicated than before because it will involve a lot of book keeping. 
+
+====================
+Canonical Collection
+====================
+These are the different states. And each state has a number of different LR(1) elements.
+ 
+==============
+LR(1) Element
+==============
+It has a rule (production), lookahead and a placeholder.
+Example: X -> alpha.Beta , x   <--- (i) 
+
+What does (i) mean? It means that what we have parsed so far is consistent with alpha. So we have parsed an alpha. So this alpha may be thousand terminals 
+and non-terminals. And we expect a Beta. Remember that each state can have possibly multiple LR(1) elements in it. So each LR(1) element is a possibility. 
+
+============================
+Importance of LR(1) Element
+============================
+They track the state of different productions. So basically LR(1) parsing is about tracking the states of different productions and then in a given state, 
+by looking at the state and the lookahead, we decide whether we are ready to make a reduction or we should shift. If both shift and reduction are possible
+then it means that the GRAMMAR in its current structure or in its current format is NOT LR(1). We may be able to restructure it into LR(1) grammmar but 
+we also may not be able to do that because the language may not belong to the LR(1) grammar. If there are multiple possibilities then this particular 
+parsing technique fails, but if there are no valid possibilities then it means a SYNTAX ERROR.
+
+===========================
+Presence of a syntax ERROR
+===========================
+If there are multiple possibilities then this particular parsing technique fails, but if there are no valid possibilities then it means a SYNTAX ERROR. It 
+means that there is nothing wrong with our grammar or our parsing technique. The input string has a syntax error, so the input string does not belong to 
+this language. 
+
+=================================
+Parsing our above example grammar
+==================================
+
+LR(1) Items State S0:  //Below are all the possibilites in the beginning.
+
+
+Goal -> .X , eof   //this was easy. This is level 0 
+X    -> .Xab, eof  //this is level 1
+X    -> .ab, eof   //this is also level 1
+X    -> .Xab, a    //this is level 2. Also this lookahead came from production X -> .ab, eof
+X    -> ab  , a   //this is level 2 
+X    -> .Xab , a  //this is level 3 
+.
+.
+....//there are infinite number of levels here because level is going to keep repeating itself for a lookahead of a. We stop at level 2, because
+//after that, there are not any new productions
+ 
+//Also remember that there can be multiple possible lookaheads for a single symbol. 
+//Now we have a placehlder preceeding a non-terminal and whenever we have a placeholder preceeding a non-terminal, you have to keep going. 
+
+
+LR(1) Items State S1: //This is if we transition to X. This is for Goto[S0][X] , which gives us S1 
+
+Goal -> X. , eof  //reduce by Rule#0 
+X -> X.ab , eof 
+X -> X.ab, a 
+
+//Q1: Should we continue computing the closure here? Nope, because there is no placeholder that preceedes a non-terminal here.
+//Q2: Do we have any reductions in this state? YES! Goal, beacuse the placeholder has reached an end for that. 
+
+LR(1) Items State S2: //This is if we transition to a. This is for Goto[S0][a] , which gives us S2
+X -> a.b, eof 
+X -> a.b, a 
+
+
+LR(1) Items State S3: //This is if we transition to a. This is for Goto[S1][a] , which gives us S3
+X -> Xa.b, eof 
+X -> Xa.b, a 
+ 
+
+LR(1) Items State S4: //This is if we transition to a. This is for Goto[S2][b] , which gives us S4
+X -> ab., eof //Reduction by rule#2
+X -> ab., a  //Reduction by rule#2
+
+LR(1) Items State S5: //This is if we transition to a. This is for Goto[S3][b] , which gives us S5
+X -> Xab. , eof //reduce by rule#1 
+X -> Xab. , a  //reduce by rule#1
+
+===================================
+Transition graph for these states
+===================================
+We can draw transition graph for these states like these: 
+       S0
+    x     a
+  S1        S2 
+  a         b
+  S3        S4
+  b
+  S5
+
+//We can think of the above as a DFA.
+
+================================
+Goto table for the above example
+===============================
+SO remember that the GoTo table remembers only the non-terminals. So here, our goto table will be: 
+
+FromState      X
+-------       ---
+S0             S1
+S1             _ 
+S2             _
+S3             _
+S4             _
+S5             _
+
+===================================
+Action table for the above example
+===================================
+
+-----------     ----            ----          -----
+From State       a               b            eof
+-----------     ----            ----          -----
+S0              shift to S2     synErr        _
+S1              shift to s3     synErr        ACCEPT
+S2              synErr          shift 2 S4
+S3              synErr          shift 2 S5     _
+S4              reduce by #2   reduce by #2
+S5               r1                _           r1
+
+
+
+=================================
+Let us parce on a string:  aabab
+=================================
+Currently our stack is: [S0] //lookahead is current a, so we shift and goto state 2 
+Stack becomes: [S2,a,S0] with S2 being the stack top. 
+.
+.
+.
+.
+Now finally our stack looks like: [S1, X, S0] , Now we check GoTo[S0][X] , which will make our stack look like: [Accept, Goal, S0] -- which implicitly 
+means accept.
+
+==============================================================================
+Simulating the String acceptance on the transition graphs (DFA like automata).
+===============================================================================
+Which can simulate our string on the transition graph above. So now the logic is that initially we are in S0 and because we saw an "a", we went to S2. Then
+we saw "b", so we went to S4. And when we went to S4, we are ready for a reduction (we can reduce "ab" with an X). So at that point, we are replacing the
+previous two transitions with the "X" transition relative to the base state (which is S0 in this case). So that is why, when we pop off, we look at the 
+base state after popping off. So after we pop these off, we look at S0 because we are saying that we are replacing "ab" with an "X". So instead of making
+these two transitions to an S4, we are making this one transition to "X" relative to the base -- so this is what the substitutions or the reductions 
+mean.
+
+==================================
+So again, what is reduction about
+==================================
+Replacing potentially multiple symbols with a single symbol (which is on the left hand side of the production). And on the left hand side of the production,
+we only have one symbol (because it is a context-free-language).
+
+================
+Homework problem
+================
+Goal -> Expr 
+Expr -> Term + Expr 
+Expr -> Term 
+Term -> Factor * Term 
+Term -> Factor 
+Factor -> identifier
+
+========
+Solution (partial)
+======== 
+ Level 0 -- Goal -> .Expr, eof 
+ Level 1 -- Expr -> .Term + Expr , eof 
+ Level 1 -- Expr -> .Term, eof 
+ Level 2 -- Term -> .Factor * Term, {+, eof} 
+ Level 2 -- Term -> .Factor, {+,eof}
+ Level 3 -- Factor -> .ident, {*, eof}

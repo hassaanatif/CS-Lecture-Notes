@@ -1,0 +1,198 @@
+                            ======================================================================================
+                             Compilers Lecture 15: Parsing (4): LL(1) Parsing, Part II: First and Follow Sets
+                            ====================================================================================== 
+
+=======================================================
+Why do we need to compute the FOLLOW SET while parsing 
+=======================================================
+
+
+================================================
+Our current situation and how parsing will lead
+================================================
+Right now, we are writing a grammar for which the start variable is an expression. It means that we are parsing a program that consists of a single expression.
+It doesn't have multiple expresisons, assignments, if, else etc. Later on, we will be writing grammars for a real program. So our start symbol/variable will
+become Program. The program is gonna be a list of statements. And each statement is one of many different kinds of statements(assignment statement, 
+conditional statement, loop etc). And then, the assignment statement in particular will have an identifier, then the equal sign and then an expression. So
+what we are discussing right now is part of a bigger picture for an actual programming language. At this point, we are only focusing on the expresisons. 
+When we build a parser for a real program, the root of the parse tree is going to be a Program. Top down parsing is about starting at the root or at the 
+top. 
+ 
+=================================================
+Having just one option at a given point in parser
+=================================================
+So, in this backtrack-free parser, we shouldn't have multiple options. We should only choose only one correct option (production) at a particular time. If
+there are mulitple options then this parsing technique doesn't work on this particular grammar. So then the only options that we will have to fix the 
+situation will be:
+i) Find another parsing technique
+ii) Restructure our grammar such that it doesn't have multiple options 
+
+==========
+Substituting an epsilon for Expr'   //Example string used: x + 5 * y
+==========
+By substituting an epsilon means that we are passing or skipping the matching. So it means that we are not doing any actual matching.  So we have an expr'
+already ("x") and we are not matching the next symbol i.e plus until the next step in the derivation or in the parsing. So now deferrng the substitution or 
+deferring the derivation will lead to a correct substitution only if this "+" can appear after an Expr'. Now the question is does an Expr' have in its 
+follow set a "+" symbol??? So we look at its follow set after we compute it. Now it doesn't have a "+" in it. This means that deferring the matching until
+a later step, we know for sure, will NOT lead to a correct derivation because this "+" doesn't belong to anything that may come after an Expr'. The only
+valid option is "+TermExpr'". If we had a "+" in the follow set of Expr' then we would have had 2 valid alternatives. So Epsilon would have been a valid
+alternative. Now if 2 valid alternatives were present then it means that this PARSING TECHNIQUE (LL(1)) FAILSS ON THIS GRAMMAR.
+
+=================================
+Thing to keep in mind about LL(1)
+=================================
+This LL(1) rule is not a parsing technique that will parse all the grammars in the world. It will only parse a subset of the grammars in the world. Sometimes
+it is possible to restructure our grammar so that it is parsable by LL(1) and sometimes it is not parsable. 
+
+=====================================
+Technique of restructuring a grammar
+=====================================
+One technique of restructuring a grammar from non LL(1) parsable grammar to LL(1) parsable grammar is the the Left Recursion Elimination. SO by eliminating 
+left recursion, you may be able parse grammar using LL(1), however this may not always be the case as Left Recursion Elimination may not be enough or 
+sufficient.
+
+================================================================
+Some hint about Recursive Descrent Parsing Technique and LR(1)
+================================================================
+Recursive Descrent is based on LL(1). So if a Grammar is LL(1) parsable, you can build a recursive descrent parser for it. Any top-down parser can
+be implemented as recursive descent. Anyting that is top-down can be implemented as recursive descent. And LL(1) is one example: the set of 
+languages that are LL(1) parsable can be parsed using a recursive descrent parser. LR(1) is MORE POWERFUL THAN LL(1) but LL(1) is good for most
+language constructs. 
+
+===========================
+Again, when does LL(1) fail
+===========================
+When we have multiple options or multiple alternatives. If we have no option at all then it means a "SYNTAX ERROR" (meaning that the string does not belong
+to the language).
+
+============================================================
+What makes a Grammar LL(1) in terms of first and follow set
+============================================================
+For every production (and the general form of the production will be: X -> B1 | B2 |....Bn
+Now if every production in the grammar has just one alternative, we know for sure that it is an LL(1) grammar (but obviously, this is not to going to be
+the case in an interesting grammar: a grammar that has more than one alternative for every non-terminal). The very initial condition for LL(1) should be
+that their FIRST SETs should be disjoint, but this is not sufficient. But if there is an alternative that has an epsilon in its FIRST set, then we should
+look at its follow set beacuse having an epsilon means that we can skip or that we can deffer the matching and we can match later. Now will matching later
+work or not will depend on the FOLLOW SETs. 
+
+=================================
+Why do we look at the FOLLOW SET
+=================================
+If one of the alternatives has an epsilon in it then we look at the Follow set. 
+
+=====================
+Define First+(X->Bi) 
+=====================
+First+(X->Bi) = {First(Bi) if Epsilon DOES NOT BELONG TO First(Bi),  
+                 First(Bi) U Follow(X)  OTHERWISE}
+
+NOW that we defined a convention, let us write down the mathematical definition for our LL(1) grammar: 
+=================================
+Mathematical definition for LL(1)
+=================================
+  "For every production : X -> B1 | B2 |...Bn 
+   First+(X -> Bi) INTERSECTION First+(X -> Bj) = PHI (empty set) , for 1 <= i <= j <= n AND i != j "
+
+//In the above, if the result is not PHI (empty set) then that means that there are multiple alternatives.
+
+
+================
+Example Grammar
+================
+S -> A|B
+A -> b
+B -> BACb|a
+C -> AD  | Epsilon
+D -> BC  | bC
+
+Now this grammar is not LL(1) parsable. WHY? BECAUSE it has LEFT-Recursion in it. So as a first step, we must elminate Left recursion. The only production 
+here that has left recursion in it is: B -> BACb | a , converting it into right recursive form gives us: 
+                                                      B -> aB' 
+                                                      B' -> ACbB' | Epsilon
+
+================================
+How would you compute First set
+================================
+Suppose we have a production: 
+                              X -> A1A2A3.....An
+ALGORITHM: 
+                       put First(A1) - {Epsilon} into  First(X) //BUT this is not strictly true
+
+//If we can substitute an epsilon for A1 then this means that we are not matching A1 with anything in the string. Then this means that the X may start with 
+// A2. And if A2 has an epsilon then X may start with an A3. And soo on....
+//So we have to keep checking until we get to an A that doesn't have an epsilon in it OR all of them have epsilons in their first sets. Now if all of them 
+//have epsilon in their first sets then PUT EPSILON in the First(X).
+
+===================================
+Pseudocode for computing FIRST Set
+===================================
+1. First(X) = Phi (Empty Set)
+2. for (i = 1 to n)                         //REPEAT OUTER LOOP UNTIL NO MORE CHANGES HAPPEN. THEN REPEAT THE INNER LOOP FOR ALL PRODUCTIONS.
+3.    First(X) U = First(Ai) - {Epsilon} 
+4.    if (Epsilon DOES NOT BELONG TO First(Ai) 
+5.        break;
+6. if (i == n + 1)              //if all the productions had epsilon in them 
+7.    First(X) U = {Epsilon} 
+
+//We have to do the above for every production. And in-fact we have to repeat the whole thing until no more changes are possible. And why repeat it? Because
+//the first set of one variable may be dependent on the first set of another variable. And dependencies can be BIDIRECTIONAL in some cases. So we have to 
+//keep repeating until no more changes are possible.
+
+===================================
+Pseudocode for computing Follow Set
+===================================
+X -> aYA1A2A3....An   <-- (i)    //Here we don't really care about what comes before Y in order to compute a follow set of a Y. 
+                               //In order to compute the Follow set of variable, you have to find it somewhere on the right hand side of a production. 
+
+for i = 1 to n 
+    Follow(Y) U= First(A1) - {EPSILON} 
+    if (Epsilon DOES NOT BELONG TO First(Ai) 
+        break; 
+
+if (i == n + 1) 
+   Follow(Y) U= Follow(X) 
+
+//And this whole thing above will be inside two loops. One loop that goes through all the productions and one loop that keeps repeating until no more changes
+//happen.
+==========================================
+What to add to the follow of Y here in (i)
+==========================================
+We add the First(A1). If First(A1) has an EPSILON in it then I should add the First(A2) and so on...until I hit a varible that doesn't have an epsilon in its
+First set. If all of the As have epsilon have EPSILON in them then in addition to adding the First sets of all of them to the Follow (Y), I also need to add
+the FOLLOW(X). WHY the FOLLOW(X)? BECAUSE HAVING ALL THESE EPSILONS AFTER Y means that all of the As may vanish then Y can be the LAST SYMBOL IN AN X. And if
+Y can be the last symbol in an X, we should LOGICALLY ADD EVERYTHING THAT IS IN THE FOLLOW SET OF X to the FOLLOW SET OF Y.
+
+====================================================================================
+In the very beginning, what is the SEED for Follow Computation OR Where do we start?
+====================================================================================
+Initially all of the FOLLOW sets are empty, except one set called the "Start variable". We look at the start variable and we add to its Follow set the 
+EOF (end of file). And the logic behind it is that the large string (i.e abcd......d) and after it we have the EOF (end of file). S is the big variable, 
+the top variable or the root of the tree. 
+
+=================
+First of Terminal
+=================
+The first of a Terminal is the Terminal itself.
+
+
+============================================================================
+When do we need a SECOND Round of computation of the First or the Follow Set
+=============================================================================
+We need to a SECOND round of computing the First or the Follow Sets if something above top depends on soomething below it. [Screenshot#2303 for reference]
+
+===================
+For the Follow Set
+====================
+For the Follow Set, we always start with the Start variable.
+
+Follow (S) = {eof}                            //EOF may not be enough, so we scan for S on the right hand of each variable. However, since we don't find S on
+                                             // the Right Hand Side of anything, we know that that should be the end of it.  
+Follow (A) = {eof, b, a}
+Follow (B) = {eof, b, FOLLOW(D) 
+Follow (C) = {b, FOLLOW(D) 
+Follow (D) = {b, FOLLOW(C)
+Follow (B') =  {FOLLOW(B) (which is eof, b)
+ 
+//AS YOU CAN SEE, we are DONE with the 1ST ITERATION. Here Follow(C) and Follow(D) have a Bidirectional relation. In the 2nd Iteration, we will see if
+//Follow(D) has anything new then we add it to the Follow (B) because of its dependence. And then Follow (C) is fed by Follow (D) but Follow (D) does not have
+//anything new. And this is it. In the 2ND iteration, there are dependencies but there isn't anything new. 
