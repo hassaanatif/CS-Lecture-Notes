@@ -1,0 +1,225 @@
+                            ============================================================
+                             Compilers Lecture 24: Code Generation for Expressions
+                            ============================================================
+
+=================
+Review until now
+=================
+In this lecture, we will be talking about simple code generation. So far, we have covered parsing and we know how to construct the AST. And we talked about 
+how to go from the AST into ACTUAL CODE.
+
+======
+Example
+=======
+If we have an example like this:  a * 3 + b 
+The abstract syntax tree for this will be like ths: 
+        +
+    *       b 
+a      3
+
+===========
+To load a
+==========
+LoadAI rap, a -> r1 
+
+==========
+To load 3
+==========
+loadAI 3 -> r2
+
+============================
+Multiply operaton on a and 3
+============================
+mult r1,r2 -> r3
+ 
+============
+To load b
+============
+LoadAI rap, b -> r3
+
+==================
+Adding (a*3) and b
+==================
+add r3, r4 -> r5
+
+Now in terms of code generation, we talked about this before, but now we are going to talk about this in greater detail. We will think about all the issues
+that are involved in generating code for an expression like this.
+In the above example, we will load a into some register r1 and we will load 3 into some register r2. Ofcourse loading "a" here is loading a variable. 
+=====================================
+What does "Loading a variable" mean?
+======================================
+Which means a memory location that consists of a base and an offset in general. The instruction that we used in the earlier lectures "LoadAI" (read as load
+Address and Immediate) where the base is in a register "rap" read as "r activation record pointer".
+
+===============================
+What does LoadAI rap, @a -> r1
+===============================
+LoadAI is a load instruction that takes an address and it takes an immediate operand. The address is in a register. This register has a pointer to the 
+activation record for the current routine that we are compiling. And this address of "a" is an immediate number that represents the offset of variable 
+a. If we pass this to the emit function then rap will be src1, @a will be src2 and r1 will be dest node.
+
+==========================
+What this lecture is about
+==========================
+So now, today's lecture is about the implementation details of this. Not the implementation details at the coding level but algorithmatically. At coding level,
+we will have to traverse the AST and generates the abstract assembly instructions.
+
+
+====================
+Pseudocode for this
+====================
+So it is a tree traversal and we have said a depth-first traversal will serve us right. So this whole process has to be recursive. 
+Pesudocode is: 
+
+Expr(node) 
+{
+   switch (NodeType)   //here we are thinking of a node as a data structure and this node has some fields in it like type (like operator, operand like var or a num).
+  {                    //other fields like operation (like add, sub, div, mul)
+    case num:         //if it is a number then all what need to do is to GENERATE a LOAD IMMEDIATE INSTRUCTION
+        result = GetNextReg();
+        Emit(loadI, node.val, NULL, result); 
+       
+    case var:
+        result = GetNextReg();
+        Emit(loadAI, node.base, node.offset, result);
+        break;
+  
+   //Now for the internel nodes that are the operations. Now we need to do more than just issuing an instruction or generating an instruction
+   //To generate code for multiply, what do we need to do? Before we can calculate the multiply, we have to calculate everything that is below it.
+   //So we have to call the Expr(node) function recursively. This is because our operation can be a huge tree. In general, if you have an Operation then the 
+  // left and the right operands can have whole subtrees below them for an arbitrary expression. So the right thing would be to make sure that each of the 
+  //child tree is evaluated first. You have to go down.
+
+ case OP: 
+  t1 =  Expr (node.left)
+  t2 = Expr (node.right)
+   //now this means that whenever i compute an expression, I have to return the destination register. In every case, I have to return the destination register
+  //so that the parent node knows this. So Expr(a) should return r1. 
+  result = GetNextReg() 
+  Emit(OP.operation, t1, r2, res);
+  break;
+}
+return res;
+}
+
+
+//Node type
+struct node {
+   type(Operation, variable, num) 
+   operation(add, sub, div, mult)
+   value
+   base 
+   offset 
+   left 
+   right
+}
+
+
+//For generation of instructions 
+
+Emit (Operation, src1, src2, dest) //if our Operation is load immediate then it will know that src1 has to be a number/integer and the dest is a register. src-2 
+                                   //will not be used because for a load immediate, we only have one src which is the immediate value and our dest is a register. 
+
+
+========
+Terminology, which one to use? Identifier or variable? 
+========
+In context of parsing, we typically use identifier. In the context of code generation, it makes more sense to use the word variable.
+
+=========
+Storing the value
+=========
+Now our above "node" struct is a generic data type. In practice, that would be probably our base class and then we'll have derived classes from that base 
+class like identifier, number etc and based on that, we will define the data type for the value. 
+Now the question is, if in our abstract syntax tree the node that we currently traverse is a number node then what to do? Well we need to store that number 
+value somewhere (inside the node struct). We will then pass this value to the Emit(param) function.
+
+==========================================================================
+Where should the register numbers come from for the destination values 
+=========================================================================
+You want to count rack of what you already allocated and so you would take that out. All what you need is a counter and remember that at this point, we are 
+only doing virtual registers. So when we are doing virtual registers, we can have as many counters as we want. So all what you need is a counter. So we need
+a function that gets the next register number. For examle: 
+                                                             GetNextReg()
+
+
+========
+Storing variable
+===========
+All that we need is that we need this emit operation. And we need a destination. Now the base and the offset for this are going to come from where? We need
+the BASE and the OFFSET. We can store the BASE and the OFFSET in our node data structure as well.
+
+========
+Register numbers
+===========
+These register numbers like t1, t2, t3, result etc can all be represented as integers.
+
+=================================================================
+Simulating the entire code on the above example for our given AST
+=================================================================
+So first of all, we are going to call the Expr(node) funciton on the root i.e the "+" operation. So our stack will be:
+
+  [Expr(+)]
+
+Expr(+) will switch and because it is an OS, it will recursively call itself on the left node. And the left node is going to be the multiply. So our 
+stack will be: 
+    [Expr(+)| Expr(*)]
+Again, * is an OP, so we will do a recursion on the left subtree. 
+ 
+    [Expr(+) | Expr(*) | Expr(a)]
+
+Now for Expr(a), it will identify a as a variable. And it will generate this with register#1 holding the result in the variable case. This will be 
+the first time that we will call GetNextRegister. And it will get us r1 and it will generate this instruction that we want. Now when Load A returns,
+we will be in the case statement of the multiply (since we are tracing the recursion here). It is important to understand that this whole thing is
+recursive. The R.H.S of multiply is going to be 3. So our stack will be:
+
+  [Expr(+)| Expr(*) | Expr(3)]
+
+When we call Expr(3), it will load immediate of 3 and it will put it in register#2. Now, we are in Expr(*). t1 returned r1 and t2 returned r2, and 
+now, it is going to get the next register which will give us r3. This will generate that multiply that we want. It is going to multiply r1 that 
+came from the left child (or that holds the result from the left child) and r2 that holds the result of the right child, and r3 the new register 
+that we have just generated. Now the multiply will eventually return after this. So our stack will be: 
+
+    [Expr(+)]
+
+Now we are the second line of the add (the top level). The left child for the add return r3 that will be stored in t1. Now it will call the right 
+child, so our stack will be:
+      [Expr(+) | Expr(b)]
+This is a load immediate instruction that will be stored and returned as r4. So our stack will be back to: 
+      [Expr(+)]
+
+Now GetnextRegister() line will be called and it will return r5 (it is just a counter). Then we will emit the instruction. 
+So this is how it is going to work. 
+
+============
+Comfortableness with recursion
+==========
+If you are comfortable with recursion then this should be intuitive. 
+
+====================================================================================================
+Question: What if we moved "res = GetNextReg()" line before the t1 and t2 lines in case of operation
+====================================================================================================
+In this case, we need to ask ourselves, will the algorithm still work correctly? Yes, it will. But the register allocations will not be in the order. 
+Different register numbers will be used but it will be correct. What will happen to register numbers? How different will they be? The destination is 
+going to be r1. So basically, it is going to do the allocation for destination in PRE-ORDER AND NOT IN POST-ORDER, but that is fine. These are just 
+register numbers. So it is going to set the desination to r1 and then it will call the left child and so on. So our labeled AST will look something like
+this: 
+
+                      +  -> stored in r1
+stoerd in r2 <-   *        b -> stored in r5
+
+stored in r3 <- a   3 -> stored in r4
+
+==============================================================================================================================================
+Question: What if we moved the emit and the result before t1 and t2, before calling expression, so if we do them in pre-order, will it work?
+==============================================================================================================================================
+So basically, getting a register number is not a big deal. We can do it before and after we compute the expressions below the current node. That is 
+fine because it is just a number. But calculating the actual expressions below that and computing them MUST BE DONE BEFORE we can generate the code
+for the current node. Because the current node is dependent on its childre.
+So, the actual computation has to happen in post order. But the numbering of the registers doesn't matter. You can do it pre-order, post-order, 
+any order.
+
+=========
+Lastly
+=========
+You may find a solution for the numbering problem, but you will NOT find a solution for the actual dependence problem.
