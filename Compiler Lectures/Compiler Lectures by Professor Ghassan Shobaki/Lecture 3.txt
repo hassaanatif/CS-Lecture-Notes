@@ -1,0 +1,178 @@
+  
+                                                  ============================================
+                                                    LECTURE 3: Instruction Scheduling Concepts
+                                                  =============================================
+
+===========================================
+What does a virtual register correspond to
+===========================================
+- When we are using, we are making an assumption that we have an infinite amount of registers. And a virtual register in the source program
+  coressponds to a temporary or an intermediate result. 
+
+=========================================================
+What happens to a variable when an assembly is generated
+=========================================================
+- The variable is replaced by an offset relative to the activation record pointer.
+
+
+==============
+Pipelining
+==============
+- With pipelining, you can start a new instruction even if some instruction have not been completed yet. 
+
+====================
+Single issue machine
+====================
+- In such a machine, in each cycle, we can start a new instruction but assuming that this instruction is independent of the previous instruction.
+
+=================
+Data Dependence graph
+=================
+- When the currently executed instruction is dependent on another instruction then the compiler will create a dependence graph for it. 
+- Demonstrated in Lecture 3 (video 4) , time: 9mins 30 seconds.
+- In our above a * b + c * d example, the data dependence graph is essentially an inverted abstract syntax tree.
+- But generally speaking that that is not always the case. The dependence graph is more complicated than that.
+
+
+=================
+Latiences
+=================
+- Some instruction have latencies. And these latencies can be costly in terms of performance. 
+- Let us assume that for the load, we have a latency of 3 cycles. 
+- Mulitply has 2 cycles
+- Divide has 5 cycles
+- Store has 2 cycles
+- Add has 1 cycle 
+- Usually we mention the latencies that are greater than 1
+- Though these whole latencies deppend on the processor model. 
+
+===============================
+Assumptions that we are making
+===============================
+- We are assumping that each load will hit the cache because we are assuming that load will take just 3 cycle
+- Otherwise, bringing something from the main memory takes like 100s of cycles. So it is two orders magnitude of bringing something from the cache)
+ 
+===============================================================================
+Can we always assume that something that has been loaded before is in the cache
+================================================================================
+No. Because it may have gotten locked out of the cache by something else. Also, compile time information will never match runtime information 100%.
+We can model the processor all that we want at the compile time but it will not 100% match the runtime information. Also remember that compiler 
+is allowed to guess when it comes to performance. However it is not allowed to guess when it comes to correctness.
+
+
+============================================
+How will the instruction scheduler fit here
+===========================================
+- The instruction scheduler will look at all these lines and it will try to reorder these insntructionsn to minimize the number of cycles. 
+- An instruction scheduler may notice that these loads in the first few lines have longer latencies and these loads are independent, so I can 
+  execute all the loads in the very beginning and do everything else afterwards.
+
+=================================================
+How the compiler hides the latencies of the load
+=================================================
+- SO in our example above (screenshot 1773), the compiler hid the latencies by placing the independent instructions between the load instruction
+  and the consumer of the load instruction (which was the multiply in the case of a).
+- By doing this, we are doing more instruction level parallelism. We are doing more instructions in parllalel. In our case, we are doing more
+  loads in parallel.
+ 
+============================
+Which scheduling is better?
+============================
+- So when we try to achieve instruction level parallelism then that will require us to have more registers. Because that is going to increase
+  the peak register pressure or the max register pressure.  
+- So the question arises, should the compiler minimize the number of LIVE REGISTERS and increase the number of cycles or should the compiler 
+  reduce the number of cycles and increase the number of LIVE REGISTERS?  The answer depends on the processor and the architecture.
+- The idea of using more registers and minimizing cycles is very intuitive and can be understood with the help of a cooking analogy. If you're 
+  trying to cook meat, vegetables, pasta and beef all at the same time then obviously you're going to need more containers. The idea is also that
+  nothing comes for free.
+
+================================================================
+Hard problem to solve: NP Completeness of Instruction Scheduling
+=================================================================
+- Any realistic formulation of instruction scheduling is NP-Complete 
+- So in-fact minimizing any of these two things: the number of cycles or the number of registers , in general is NP-Complete.
+- So even if our itnent is find the ordering that will minimize the number of cycles. Even then, with long latency instruction that is an 
+  NP-Complete problem. And even if our sole objective is minimizing the number of registers that is an NP-Complete problem.
+- So in general, there is no polynomial time solution for these. Which means that there is no polynomial time algoirthm that can always compute
+  the optimal solution to this problem. 
+- Not having a polynomial time algorithm means that the algorithm that you have are super-polynomial or exponentials or factorials. For practical
+  purposes, if you have a problem with n = 100 (where n is the number of instructions) then 2^100 is a huggeee number. If you do the math for this
+  you will millions of billions of years.
+- That is why compilers don't solve these problems exactly. So they use HEURISTICS. And these heuristics work well in most cases but not in all 
+  cases. So, a good heuristic is an algorithm that is not guaranteed to give you the optimal solution but it gives you something close to the 
+  optimal solution in most situations.
+
+
+===========================================
+Out of order processor vs In Order process
+===========================================
+- An out of order processor will do scheduling in such a way that it will minimize the number of cycles at runtime. While it will not do a 
+  perfect job but it is going to do a good job. Nothing is perfect btw. The processor is not perfect and the compiler not perfect. 
+- So an out of order processor will try its best to hide the latencies and it will try to use the registers that are not visible to the programmers
+  to achieve more parallelism.
+- So if your processor has an out of order execution and it has a good out of order execution engine, you better focus on minimizing the number 
+  of registers. Because minimizing the number of registers will cause the register allocator to generate fewer spills (loads and stores). So that's
+  much more important  than minimizing the number of cycles because the processor is going to try to minimize the number of cycles. Now will the 
+  processor do a perfect job at this? The processor has limitations. So in terms of scheduling to minimize the number of cycles, it has limitations
+
+
+===================================
+But what does "Out of order means"
+==================================
+- Consider "screenshot 1773 (in screenshots)", before the multiply completes (on line#3) the processor is going to start the load from line #4, 
+  trying to do more parallelism.
+- But what are the limitations of a processor? Why is the processor limited? Why can't the processor do a perfect job?  The answer is that it 
+  can only look so far ahead i.e the SCOPE OF THE COMPILER is a issue. So this is going to be in the reorder buffer 
+
+
+====================
+Reorder buffer
+====================
+- There is a buffer. That will just have 10s of instructions in it. But in general, it will only have limited scope. So the processor can only 
+  look at this limited scope (which is also the size of the reorder buffer). 
+
+====================
+Scheduling regions
+====================
+- While the compiler, can look at the bigger piece of code. Even though
+  there are limitations on the compiler side too. There is no compiler that schedules a whole program at once. Because scheduling a whole program
+  at once is just too complicated. 
+- But it is going to divide the program in regions. And these regions are called "scheduling regions". And these scheduling regions are limited 
+  in size, too. But they can be bigger than the reorder buffer on the hardware. So, the size of the scheduling region, you know...the compiler 
+  can look at hundreds of instructions and sometimes it can look at  thousands of instructions at the same time. 
+
+============================================
+Branching make things even more complicated
+============================================
+- They make them more complicated for the hardware. And they make them more complicated for the compiler. Bcause - in fact, you know, having 
+  branches is one of the reasons why a compiler cannot look at the big piece of code. Usually, the compiler stops at the branch.
+
+================================
+Boundaries of scheduling regions
+=================================
+- Branches are what define the boundaries of scheduling regions.
+
+=======================
+Speculative execution
+=======================
+- Branching makes things complicated for the hardware as well.
+- If the hardware starts to execute beyond the branch instruction then it cannot commit it. We call this kind of execution "Speculative execution".
+- The hardware can only commit speculative execution until that branch is resolved. Branches complicate things but all meanningful programs have 
+  branches.
+
+=============
+Intel x86
+=============
+It is an out of order processor. Even ARM processors (modern ones) are out of order processors.  
+
+==========
+Summary 
+==========
+- We know that instruction scheduling and register allocation are. 
+- We know how both these things conflict with each other (whether to minimize the number of cycles or the number of registesr). 
+- It is typical in compiler optimization for things to conflict with each other. So improving something can make something else worse. That is why 
+  generating good, efficient (optimized) code is a non-trivial task. There are a lot of tradeoffs. Lots of conflicting objectives. That is why it 
+  is a very complicated process.
+- Compilers hopefully generate good code in most cases 
+- So far in the series of lectures, we have covered the "what of a compiler". What compilers do. What the different parts of the compilers do. We 
+  have not covered the "hows" of the compiler. How it does it. We haven't started a specific algorithm for doing instruction scheduling.

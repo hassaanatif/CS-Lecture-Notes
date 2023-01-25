@@ -1,0 +1,152 @@
+                                                      ==========================================
+                                                     Lecture 1: structure and Major Components
+                                                     ===========================================
+- A simple compiler may use multiple intermediate representations to represent the code. 
+- In compiler construction, we refer to variables (such as a, or b) as "symbolic information. 
+- In assembly language, we don't have symbolic infromation. Instead of that, we have memory addresses. 
+- Once the compiler generates an abstract syntax tree, it no longer needs the symbolic information. 
+- But in practice, there are reasons for keeping symbolic information throughout the compilation process. That reason is DEBUGGING. 
+
+
+==================
+First phase intro
+==================
+- The first phase that converts the high level code into abstract syntax tree is called scanning or lexing. 
+- Scanning is a low level analysis of the input program. 
+- The scanner looks at our whole program as one big string and it will divide it up into tokens or lexemes.
+- Consider an example: 
+    x12 = a3 + b45 
+- The first token from the above example will be "x12". Now how did the compiler know what the first token was? So we know that are we only allowed
+  to have letters possibly followed by numbers as the variable names, so we can generalize this in a way by saying that it knew that the equal sign
+  marked as the end of the first token based on a CERTAIN RULE. And we call these rules as REGULAR EXPRESSIONS. 
+- There is no rule in the programming that says that something starts with an equal sign, so hench the second token will just be an equal sign
+  or the assignment operator.  
+- The implementation of a lexer will involve a finite state automata. 
+- If your program passes the scanning phase, it means that all the tokens, all the parts of speech are correct
+
+=========
+Parsing
+=========
+- Also known as syntactic analysis. 
+- It basically builds words or sentences
+- The equivalent of a sentence in a programming language is a statement 
+- The equivalent of a word in programming is a word.
+- A grammar is what we will be using to define the syntax of the different legal statements. 
+- Basically scanner is built using regular expressions and finite automatas. And parsing is done with the help of grammars.
+- If your program pases this syntactic stage then it means that it will contain legal statements
+
+===================
+Semantic Analyzer 
+===================
+- The third part of the frontend is the semantic analyzer. 
+- Here we check if the statement makes sense. 
+- If your program passes this stage then only it will be a valid program. 
+
+==========================
+Few more important points
+===========================
+- Parsing or checking syntax can be done locally. 
+- But in order to check the semantics, we have to do a more deeper and a more global kind of analysis. We can just match it up against the rules 
+  i.e grammar.
+- So we if we have to do a semantic analysis on an assignment like this: x = a + b; ,  we have link that statement up with the declarations at
+  the locations where each of those variables have been defined. And they may have appeared much earlier in the code.
+- In order for compilers to do this, they process a declaration, they're going to create an entry for each variable in what we call a symbol 
+  table. So these declarations go into the symbol table. That symbol table will have all the differnet information regarding the defined 
+  variables. It's type, it's scope etc. And then when this variable is used, the compiler is going to look up that variable in the symbol table 
+  and check its type and then make a check whetehr this statement is meaningful or not. 
+- We will spend more than half of the time studying the front-end. 
+
+
+============
+Optimizer 
+============
+- Here, we will initially have some form of intermedatory represetnation. 
+- Not all commpilers will have AST as an intermediate representation
+- Some compilers will have a linear intermediate representation 
+- In this phase, the compiler will be applying some transfomrations to improve the quality of the code. 
+- In theory, the optimizations that are applied here should be machine indepndent. 
+- Everything that is machine specific, that are related to the generation of the code for our target machine should be ideally done at the backend.
+- Some compilers generate code for many different machines and many different processors. The extreme example is a gcc compiler. Which means that 
+   the backend is complicated. For a good design, theere will be multiple backends. Or this backend will be applied in a way in which we have some 
+   common stuff that applies to all machines and all processors. So there is some processor specific stuff. 
+- Backend may be divided into abstract or general stuff that applies to all processors. And then the other areas are specific to target #1, target
+  #2 etc. These targets are specific processors. Like intel x86, ARM, GPU, embedded processors. 
+
+=========================
+Common optimizations done
+=========================
+- One of the most common optimizations done is common subexpression elimination (CSE) , example: x = a + b + c    AND y = d/(a+b)
+- From the above (a+b) is a common subexpression. So a compiler will do this, it will just compute a+b and put it in some temporary. 
+- Transformation: t = a + b; , x = t + c; , y = d/t;
+ - Generally speaking, there's no guarannteed way that will make the code faster. Because it may make things better from one aspect but it may make
+  something else worse. 
+- So in the above example, the only way that it would benefit us is if the t was stored in a register and not in memory, because in some computers
+  loading from memory is order of magnitudes slower. In-fact, sometimes, recomputing values may be faster than loading data from the memory. 
+  Because in the above example, a+b is an add operation that can be done in a single cycle. Though even if the data is in cache, bringing it 
+  may take more time than recomputing A + B. The above optimization would only work if T was in the register for a long time. And with this 
+  variable reserving a register for a long time, other variables may not have the chance to be stored in a register. And so we victimize other 
+  variables this way. 
+- Optimization is not a beffiting word here because it is not gauranteed to make things even better. Not to mention optimality. It is not 
+  guaranteed too make things better. It can make things worse. But it hopes to make things better. 
+- But compiler optimizations make things better most of the time.
+- So in theory, optimization is machine independent but if you think about it deeply, it will not be 100% machine independent. Because when we 
+  start talking about memories, caches, register etc. Whether this will be good or bad will depend on how much cache will have, how many caches, 
+  registers etc we have. 
+- That is why in a real compiler, this optimizer will often have some machine dependent variables. 
+- So this CSE optimization is a good example of machine dependent optimization because it will be a good optimization for a machine that has 
+  enough registers otherwise for a machine with not too many registers, it will not be a good optimizaiton.
+
+===========
+Backend 
+===========
+- This is the part that will truly be machine DEPENDENT.
+- Here we will do instruction selection and instruction scheduling and register allocation. 
+- To go from AST (Abstract Syntax Tree) to assembly, 
+=====================
+Instruction selection
+======================
+- So instruction selection is selecting instructions. 
+- Abstract syntax tree is a very logical hiearchial representation of expression computation and assignment 
+- To go from  an AST to assembly it is common to generate some generic or abstract assembly. Like the assembly for some RISC machines, because they 
+  don't have many instructions. So you are generating basic assembly that is the instructions that you are using are likely to be on all 
+  processors. All processors will have add, load etc. So using hte basic operations. 
+
+Example:  x = a*b+c*d; 
+
+- In the above example we do the following: 
+   load a -> r1 
+   load  b -> r2
+   mul   r1, r2
+   ..
+
+- So in the above example we are assuming that we will have infinite number of registers. This is obviously a non-realistic assumption. And compilers
+  do this at some point before they get to register allocation. So before they get to register allocation, the compilers assume that they have 
+  infinite number of registers.
+- The job of a register allocator is that it will take all these virtual registers (VIRTUALLLL) and map them into real or physical registers. 
+- Another observation from the above code is that there we are generating a code sequences (loading a, b into register and then multiplying 
+  registers). BUT on some machines there are complex instructions that may operatoe on memory operators. In-fact, if we have a memory operation
+  or a multiply operation and then putting that could be in memory or in registers.  ON A CISC MACHINE, instead of these multiple registsers and 
+  lines of code to multiply two numbers, you may have just a single instrucction that does just that and stores the result in some register or 
+  in one of the variables. For example: 
+   mult a,b -> r1
+- The mmachine may also have an arithmetic operation that performs an operations on two memory operands and puts them in a seperate memory location
+  and that is a CISC instruction or a COMPLEX instruction. That the machinee itself consists of multiple simple risc instructions. 
+- SO WHAT IS THE POINT HERE? THe point here is that which instruction shouldd get selected and what is the most efficient sequence of instructions 
+  is the job of INSTRUCTION SELECTION.
+
+
+============================================
+Point to pick up from instruction selection
+============================================
+- instruction selection will take the abstract syntax tree, a high level code represnetation and convert it into an abstract low level assembly, 
+  which is not quite machine code yet. But when it goes through instruciton selection, it will be replaced by actual instructions. So when we 
+  go through instruction selection, we are making the code more real. So we start off with virtual or abstract things and gradually we make them 
+  little by little more real. And then we will end up with a real code that will run on a real machine.
+
+========================
+Instruction scheduling
+=======================
+- These ordering of intructions is not neccessarily the best ordering for executing the seuqnece of isntructions. 
+- Because a load instruction in particular have latencies. So a load instruction may take a few cyclces to excecute. When you get to this multiply
+  you will have to wait for this load or the result of this load to become available and this can wait 2 or 3 or 4 cycles depending ont the machin
+  -es. So we can instead re-order the instructions to hide latencies. 

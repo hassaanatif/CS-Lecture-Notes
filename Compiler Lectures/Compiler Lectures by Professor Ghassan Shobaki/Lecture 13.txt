@@ -1,0 +1,191 @@
+                            ==================================================================================================
+                             Compilers Lecture 13: Parsing (2): Context-Free Grammars for Programming Language Constructs
+                            ================================================================================================== 
+
+
+============================================================
+The alphabet set for typical programming language constructs
+=============================================================
+It will be the output of the SCANNER. It will be whatever the scanner recognizes.
+======================
+EXAMPLE ALPHABET SET: 
+=====================
+                      SIGMA = {ident, num, if, else, +, -, *...}
+
+NOTE: The identifier, num, if, else will be considered as single symbols. But for "+", "-", "*" etc these will be considered as single symbols. So these will
+      be treated as separate syntactic categories.
+
+==================
+Example 01
+===================
+Let us consider a line:
+                        X12 = abc + def; 
+
+Here: 
+X12 = identifier 
+abc = identifier
+=   =  = syntactic category
++   = + syntactic category 
+def = identfier 
+
+
+From the above, we can write a rule like this: 
+ 
+Assign -> ident = Expr;  <---- (i) 
+
+Here non termminals are: Assign and Exprr since ident is a symbol at the parser level and is treated as terminal.
+
+==============================================
+Writing a basic rule for Expression using (i)
+==============================================
+Expr -> ident + ident
+
+
+=======================================
+But what is the problem with the above
+=======================================
+We can't do multiply or divide. So it is not generalized enough. Here is a more generalized  form of it: 
+
+Expr -> ident OP ident 
+OP   -> + | - | * | / 
+
+
+========================================
+Is there still a problem with the above
+========================================
+The above is still not general enough. It doesn't support more complex operations like more additions or subtractions. Let us try to write it in an even more
+generalized format: 
+
+                   Expr -> Expr OP ident | ident
+
+We can use the above to parse something like: x = a + b - c
+
+
+=======================================
+But what is the problem with the above
+=======================================
+It does NOT preserve the precendence rules. So if we try to parse an expression like:  a + b * c , it will do the addition first and then it will do 
+multiplication.  
+
+
+============================================================
+A grammar that captures the precendence rules while parsing
+============================================================
+This is not going to be hard. Let us consider the expression: x = a + b * c  <---- (v)
+So to parse this, I have to introduce the notion of mathematical terms: 
+==================
+Mathematical terms
+==================
+From the above (v) we have the following components: 
+Term --> b * c 
+Term --> a 
+factor --> b 
+factor --> a 
+
+The point is that the "+" or the "-" relates each term, you can have a number of factors. Now this is the key idea. The idea is that the term is a 
+higher level construct that can have within it factors.
+ 
+==============================================
+Newly refined grammar with terms and factors
+==============================================
+Expr -> Expr + Term | Expr - Term | Term 
+Term -> Term * factor | Term / Factor
+Factor -> ident | num  
+
+----
+NOTE:
+-----
+The relationship between a Term and a Factor is the same as the relation between a Term and an Expression. Except that the operators are going to multiply
+and divide.
+
+============================================================================
+We are looking at teh basic expressions that use the built in operations
+============================================================================
+We are not looking at function calls or exponents (which are also function calls). We are looking at the basic fundamental operations that can be performed 
+on expressions.
+
+
+=================================================================================
+Incorporating paranthesis. Should they be accounted at the top or at the bottom?
+==================================================================================
+Paranthesis have HIGHER precedence and therefore they should be accounted for at the bottom. Higher precedence goes to the bottom because that is what you 
+want to evaluate first. Lower precedence has a higher level in the hiearchy. The paranthesis structure is a factor. It is an alternative for the factor. 
+So a factor can be an indivdual numnber, or a single identifier or paranthesis.
+
+================================================
+Revised grammar: THE CLASSIC EXPRESSION GRAMMAR
+=================================================
+Expr -> Expr + Term | Expr - Term | Term 
+Term -> Term * Factor | Term / Factor | Factor 
+Factor -> num | ident | (Expr) 
+
+
+==================================================
+We parsed by insepction the string "(a+b) * c - d
+==================================================
+WE looked at the grammar and we looked at the actual string that we wanted to parse and we tried to some matching. And we suceeded because the string was too small.
+And we essentially did it by inspection. In our head, we tried a couple of possible solutions or substitutions. And when we are looking for the right
+derivation, we were looking at the whole string. For example, how did we know that the first substitution that we make is "Exp - Term" and not "Exp + Term",
+we knew this, because we looked at the whole string and we found a minus in between and then we said that (a+ b) * c will be one expression etc. And
+how many symbols did we have to look ahead in order to figure out the right derivation? In our current example, we had to look ahead around 8 symbols
+to figure out the right derivation. 
+
+===========================================
+Compilers can't afford a lot of lookaheads
+============================================
+And in-fact, compilers cannot afford looking six symbols ahead. In fact all the parsing algorithms that we will be learning will have just one symbol
+look ahead and based on that they will decide. So in order to come up with such a parser, the grammar needs to be structured in a way that supports 
+this. That supports deciding or figuring out the right substitution very early i.e by only one symbol lookahead.
+
+
+=================================================
+Systematically parsing the expression: a + b - c  //UNDERSTANDING THE PROBLEMS AND COMPLEXITIES WITH PARSING
+=================================================
+So if we are systematically doing this, then it will first go with expression. And then it is going to say that I will try the first substitution because
+right now, the parser sees this a. So the parser will say: Expr + Term. So we just did 1 derivation. Then in the next step, if we are going to do the 
+leftmost derivation then we should be looking for a substitution for expression. But in fact, if we are going to do this systematically then we are 
+going to substitute "Expr + Term" again. And if we keep doing this systematically then it is going to do Expr + Term forever. The point is this that if 
+you are doing leftmost derivation and if you have LEFT Recursion in your grammars then you will be substituting forever. So you will be in an infinite loop. 
+SO LEFT recursion and leftmost derivation don't work well together. In this case, you will keep substituting forever. Lets say that we somehow find an 
+escape from this and in the second derivation, we substitute Expr - Term for Expr.  But this will not lead to correct or right parsing. But this doesn't mean
+that our input string is invalid because maybe one of our decisions, derivations or choices was wrong. So let us backtrack and try something else. The idea 
+is that if you make a wrong decision at the top then everything based on that will be wrong. But in order to identify where the wrong substitution is, you 
+will have to do a lot of backtracking and try out a lot of different possibilities.
+
+==================================
+The inefficieny with our approach
+==================================
+The point here is that if an actual parser does this, makes substitutions and then backtracks to the upper level and tries out different possibilites and keeps
+doing it up until the very top will NOT LEAD TO VERY EFFICIENT PARSING. Because in a way, we have to traverse the entire tree. And the number of nodes in a 
+tree is exponential function of the depth of the tree. 
+
+================================================================
+But is there an efficient algorithm for our particular grammmar?
+=================================================================
+Yes, there is a different approach to parsing that will allow us to figure out the correct substitution from the top based on ONE SYMBOL LOOKAHEAD. For this
+particular grammar there is such an algorithm and this algorithm will be based on eliminating left recursion. If you eliminate left recursion, you can find 
+a parsing algorithm that will not have to backtrack.
+
+==========================
+Left recursion elimination
+===========================
+It is the restructuring of our grammar such that we don't have left recursion, instead we have right recursion
+
+=====================================
+Example of Left Recursion Elimination
+======================================
+If I have a grammar with left recursion such as: 
+   X -> Xa | b 
+ 
+If I keep derivating using the above grammar, in the end, I  will have to replace a beta with the X. So what does this mean? It means that when you have 
+left recursion, this will generate a Beta followed by as many alphas as you want. So this is what it generates. Beta followed by as many alphas as we want.
+And this can be written in the following equivalent form: 
+
+   X -> BX' 
+   X'-> aX' | epsilon
+
+The above is the right recursion equivalent form of the our grammar. It turns out that the kind of parsing that we are about to study, or that we will be 
+studying in the next lecture, the right recursive form works very well and it will allow us to parse any string that belongs to this language by only one symbol
+lookahead.
+
+
