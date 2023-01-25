@@ -1,0 +1,150 @@
+
+                            ============================================================
+                            Compilers Lecture 17: Parsing (6): Recursive Descent Parsing
+                            ============================================================
+
+=========================================
+What does a Recursive Descent Parser mean
+==========================================
+It means a Parser that implements Top-Down parsing. And it works fine when the Grammar is in LL(1) form.  And the idea is very simple and intuitive.
+The idea is to write a procedure or a function for every Non-Terminal in the grammar and you just try to go through the derivation recursively in a 
+top down manner.
+
+================
+Interesting Grammar
+================
+All interesting grammars are recursive. If a grammar doesn't have recursion in it then it is not interesting. If it doesn't have recursion then it will GENERATE
+only a FINITE NUMBER OF STRINGS.
+
+===================================================
+A language that generates Finite number of strings
+===================================================
+It is called a regular language. Regular because you can write a regular expression which is just the OR'ing of these finite number of strings (even if it is 
+a million line program).
+
+
+==========
+The idea
+==========
+The idea is that we start from the top. So we have a main function. And this main is going to look at the Expression. The start variable is the expression. So
+it is going to call the function that recognizes the expression. 
+
+=======
+Pseudocode
+=====
+
+Main () {
+word = GetNextWord();
+res  = Expr()    //the function that parses the expression 
+if (res == true && word == eof)
+     ReportSuccess() 
+else 
+     ReportFail()      
+
+}
+
+Expr() { 
+res = Term()
+if (res ==false) 
+   return false;
+
+return ExprPrime() //we return whatever ExpressionPrime() returns
+}
+
+ExpressionPrime() {    //This will suceed 
+   if (word == '+' OR word == '-') 
+      word = GetNetWord() 
+      res = Term() 
+      if (res == false)
+          return false
+      return ExprPr()  
+   if word == eof || word == ')'       //if an epsilon then we are not consuming a character from the input so we don't call getNextWord()
+           return true;         
+}
+
+Term () { 
+res = Factor(); 
+
+if (res == false) return false; 
+else return TermPrime(); 
+}
+
+TermPrime () { 
+ if  (word == '*' || word == '/')
+      word = GetNextWord() 
+      res = Factor() 
+      if (res == false) return false;
+      else return TermPrime()
+
+if (word == '+' || word == '-' || word == 'eof' || word == ')' )   //FOLLOW SET OF TermPrime 
+   return true;
+else 
+   return false; 
+
+}
+ 
+
+Factor () { 
+if (word == '(' ) 
+    word = GetNextWord()    //we want to consume the next input 
+    res = Expr() 
+    if (res == false) return false;
+    word = GetNext()
+    if (word == ')' )  {
+       word = GetNextWord();   //Consuming the actual word
+       return true;           //Now at this point we have recognized an expression that consists of a closing paranthesis. 
+     }
+    else 
+       return false; 
+
+if (word == id || word == num) 
+     word = GetNextWord()    //consume the word
+     return true;
+} 
+
+=========================================
+What does "Consuming the word" means here
+==========================================
+It means that we are advancing the pointer to the next character. Initially the pointer (according to my observation) will be before the first character in
+the string (i.e at "null"). Also we DO NOT CONSUME a word when we are making an epsilon substitution. In-fact not consuming anything is equivalent to 
+epsilon substitution.
+
+================================================================================
+What would be the right place to print the error message for the syntax error?
+=================================================================================
+If the rule was violated inside a factor then the right place to print this error message would be inside the Factor() method. For example : "Unexpected 
+symbol '*' sign". So this is how you get syntax errors when you compile. It is not the expected symbol. The symbol is the word or the lexeme that we are 
+seeing, so throughout the parsing process, we will have access to the actual lexeme (as it should be already obvious).
+
+=============================================================
+Exercise01: Draw the stack frame of the parsing of "X + 5 * Y"  //this should report success
+=============================================================
+=============================================================
+Exercise02: Draw the stack frame of the parsing of "X +*y"  //this should report fail
+=============================================================
+
+
+
+==================================================================
+Everything has to parse in order to parse the entire input string
+=================================================================
+So if we pass a string to the function that parses the term from a function that pareses an expression then that function (the one that parses the term) has 
+to return True.
+
+
+===============================
+Parsing a more general program
+===============================
+Program -> main () {stList}       //this describes a program that consits of main and an arbitrary list of statements.
+stList  ->  st Stlist | epsilon   //we are allowing a program that can have an empty body. 
+st -> Assign | Cond | Loop 
+Assign -> iden = Expr;
+Expr -> ....//already defined above
+Cond -> if(BoolExpr) {stList} else {stList} | if (BoolExpr) {stList} | if (BoolExpr) st;  //this last production allows a single statement without braces
+BoolExpr -> Expr CompOP Expr
+CompOP -> > | < | <= | >= | == | .....
+Loop -> ..... //TO BE DONE LATER
+
+===================================================================
+Exercise01: Draw the stack frame of the parsing of "X + 5 * Y"
+===================================================================

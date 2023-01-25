@@ -1,0 +1,289 @@
+                                                                  ============
+                                                                   Chapter 2
+                                                                  ===========
+
+======
+Intro
+======
+This chapter deals with:
+- Emphasis on the front end of a compiler (in particular lexical analysis, Parsing and Intermediate code generation). 
+- We create a small syntax-directed translator that maps Infix arithmetic expressions into postfix expressions.
+- Chapter 7 and Chapter 8 show us how to generate machine instructions from three-address code.
+- The working Java Translator appears in Appendix A. 
+- The ideas in this chapter predate the creation of both Java and C. 
+
+=============
+What analysis phase does
+========
+It breaks up a source program into constituent pieces and produces an internal representation for it, called intermediate code. This 
+phase is organized around the "syntax" of the language to be compiled. 
+
+============
+Differentiating syntax and semantics
+================
+The syntax describes the proper form of its programs, while the semantics of the language define what the program mean; that is what 
+each program does when it executes. Semantics of a language is much more difficult to describe than syntax. 
+
+========
+BNF
+=======
+Short for Backus-Naur-Form, also known as "Context-free grammars", it is the most widely used notation for specifying syntax. CFG can
+also be used to help guide the translation of programs. The grammar-oriented compiling technique known as "syntax-directed translation". 
+ 
+==========
+What synthesis phase does
+===========
+It translates the intermediate code into the target program.
+
+===========================================================================
+What do we mean by syntax directed translation from infix to postfix form
+=========================================================================
+It is a notation in which operators appear after their operands. 
+
+=======
+Some responsibilites of a lexical analyzer
+============
+- Allows a translator to handle multi-character constructs (or multi-character syntactic categories) like identifiers, which are written
+as a sequence of characters, but are treated as units called tokens during syntax analysis. 
+- It allows the following to appear within expressions: 
+  - numbers
+  - identifiers 
+  - whitespaces (including blanks, tabs, and newlines) to appear within expressionss 
+
+
+=========
+Two forms of intermediate code
+=====================
+1. AST -- or simply syntax trees. They represent hierarchical syntactic structure of the source program. This is produced by the parser
+  and then further translated into three-address code. Some compilers combine parsing and intermediate-code generation into one component.
+2. Three-address-code 
+
+
+=======================================
+Why is it called "Three Address Code"?
+=======================================
+- Because of the instructions of the form: x = y op z , where op is a binary operator. You and z are the addresses for the 
+  operands, and x is the address for the reuslt of the operations.
+- Three address instruction carries out at most one operation. In typical cases it is usually one of the following:
+   - a computation 
+   - a comparison 
+   - a branch
+
+=================
+Syntax definition  //CFG 
+================== 
+- It is a notation that is used to specify the syntax of a language. 
+- They are used to organize compiler front ends. 
+- They naturally describe the hierarchial structure of most programming language constructs. 
+
+============================
+Terminals and non-terminals
+===========================
+- Keywords are all terminals, while the variables in CFG are non-terminals. 
+
+===============================
+Formal Definition of a Grammar
+===============================
+A CFG has four components: 
+1. A set of terminal symbols, sometimes referred to as "tokens." The terminals are the ELEMENTARY SYMBOLS of the language defined by 
+   the grammar.
+2. A set of nonterminals, sometimes called "syntactic variables." Each non-terminal represents a set of strings of terminals, in a manner
+   we shall describe. 
+3. A set of productions where each production consists of a non-terminal called the head or left side of the production and a sequence of terminals
+   and/or  non-terminals, called the body or the right side of the production. 
+4. A designation of one of the non-terminals as a start symbol.
+
+=======
+The intent of a production
+========
+The intuitive intent of a production is to specify one of the written forms of a construct.
+
+===========
+Notations used in the book
+====================
+An italicized name is a non-terminal, and any non-italicized name or symbol may be assumed to be a terminal.
+
+=========
+Epsilon
+=========
+A string of zero terminals is called an empty string.
+
+=========
+Derivation
+===========
+The terminal strings that can be derived from the start symbol from the language defined by the grammar.
+
+=============================
+What do we mean by "Parsing
+=============================
+Parsing is the problem of taking a string of terminals and figuring out how to derive it from the start symbol of the grammar, and if it 
+cannot be derived from the start symbol of the grammar, then reporting syntax errors within thestring. It is ONE OF THE MOST FUNDAMENTAL 
+PROBLEMS IN ALL OF COMPILING.  The MAIN APPROACHES TO PARSING ARE DISCUSSED IN CHAPTER 4. 
+The process of finding a parse tree for a given string of terminals is called parsing that string.
+
+
+==============
+Lexemes in this chapter
+===========
+In this chapter, for simplicity, we begin with programs like 9-5+2 in which each character is a terminal. But IN GENERAL, a source program has
+multicharacter lexemes that are GROUPED BY THE LEXICAL ANALYZER into tokens, whose first components are the terminals processed by the parser.
+
+===========
+Parse Trees
+===========
+It pictorially shows how the start symbol of a grammar derives a string in the language. 
+
+=================================
+Formal definition of a parse tree
+===============================
+A parse tree according to the grammar is a tree with the following properties: 
+1. The root is labeled by the start symbol. 
+2. Each leaf is labeled by a terminal or by epsilon. 
+3. Each interior node is labeled by a non-terminal. 
+4. If A is the non-terminal labeling some interior node and X1,X2,...Xn are the labels of the children of that node from left to right, 
+   then there must be a production A -> X1X2....Xn, here X1,X2,X3....Xn each stand for a symbol that is either a terminal or a nonterminal. 
+   As a special case, if A -> Epsilon is a production, then a node labeled A may have a single child labeled Epsilon.
+
+==============================================
+Definition of a language generated by a grammar
+===============================================
+It is the set of strings that can be generated by some parse tree. 
+
+=========
+Ambiguity
+=========
+- More than one parse tree for a given string of temrinals. 
+- To prove the ambiguity, alll that we need to do is find a terminall string that is the yield of more than one parse tree.
+- A string with more than one parse tree usually has more than one meaning, we need to design unambiguous grammars for compiling applications, or to use 
+  ambiguous grammars with additional rules to resolve the ambiguities. 
+
+===========================
+Associativity of operators
+===========================
+In most programming languages, the four arithmetic operators : addition, subtraction, multiplication, and division are "Left-Associative".
+Some common operators such as "exponentiation" and the assignment operator are "Right-associative". 
+For example:
+                 a = b = c is treated as a = (b=c)
+
+Strings like a = b = c with a right associative operator are generated by the following grammar: 
+       
+     right -> letter = right | letter 
+     letter -> a | b | ... | z
+
+======================================================
+Difference in parse trees in terms of associativity
+======================================================
+The parse tree for "9 - 5 - 2" grows down towards the LEFT, whereas the parse tree for a = b = c grows down TOWARDS THE RIGHT.
+
+========================
+Precedence of Operators
+========================
+We consider the idea of associativity when talking about same operators but we consider the idea of precedence when talking about the order of 
+different operations. Or in other wwords, the associativity rules for + and * apply to occurences of the same operator, so they do not resolve this 
+ambiguity. 
+
+
+-----------------LEFT APART FROM HERE-------------------
+
+=================================
+Syntax Directed Translation Intro
+-================================
+It is done by attachng rules or program fragments to produtions in a grammar. For example, consider the following: 
+    
+                    expr -> expr1 + term
+
+We can translate expr by exploiting its structure, as in the following pseud-code: 
+   translate expr1;
+   translate term;
+   handle +;
+
+We build a syntax tree for expr in section 2.8 by building syntax trees for expr1 and term and then handling + by constructing a node
+for it. For convenience, the example, in this section is the translation of infix expressions into postfix notation.
+
+====================================================
+Two concepts related to Syntax Directed Translation
+====================================================
+1. Attributes  -- any quantity associated with a programming construct (for example an integer data type may have a value in it). Examples
+                  of attributes are data types of expressions, the number of instructions in the generate code, or the location of the first instruction
+                  in the generated code for a construct, among many other posibilities. 
+2. (Syntax Directed) translation schemes -- A translation scheme is a notation for attaching program fragments to the productons of a gramar. The program 
+                                            fragments are executed when the production is used during SYNTAX ANALYSIS.  The combined result of all these 
+                                            fragment executions, in the order induced by the syntax analysis, produces the translation of the program to 
+                                            which this analysis/synthesis process is applied. 
+
+========================================================
+The usee of Syntax Directed Translation in this chapter
+========================================================
+It will be used throughout this chapter for the following purposes:
+1) Translate infix expressions to postfix notation. 
+2) Evaluating expressions 
+3) Building syntax trees for programming constructs.
+
+More detailed discussio of syntax directed formalisms appears in chapter 5.
+
+
+==================
+Postfix Notation
+==================
+Following are the rules that define a postfix notation: 
+------------
+Trivial case:
+----------- 
+1) if E is a variable or a constant, then the postfix notation for E is E itself. 
+
+------------------
+Non-trivial Cases 
+------------------
+2) If E is an expression of the form E1 op E2, where op is any binary operator, then the postfix notation for E is E1'E2'op , where E1' and E2' are the 
+postfix notations for E1 and E2 respectively. 
+3) If E is (E) then postfix form of it will be same as E. 
+
+
+====
+Arity
+=====
+Number of arguments (a function can have). 
+
+=============================================
+Why no paranthesis are needed in the Postfix?
+=============================================
+No parentheses are needed in postfix notation, because the position and arity (number of arguments) of the operators permits only one decoding of a postfix 
+expression. 
+
+=======================================
+How to evaluate a POSTFIX Expressions
+======================================
+1. Repeatedly scan the postfix string the LEFT. Until you find an operator. 
+2. When you find an operator,you look to the left for the proper number of operands. 
+3. Then you group this operator with the operands. 
+4. Evalulate the operator onn the operands (or in other words, perform the required operation/computation).
+5. Replace by the result. 
+6. Repeat the process, continuiing to the right and searching for another operator.
+
+
+=======================
+Synthesized Attributes
+=======================
+- It is the association of quantities with programming constructs 
+- Example: associating values and types with expressions in terms of grammar. 
+- We make associations with nonterminals and terminals. 
+- We also attach rules to the productions (correspond to the MakeNode functions in my other compiler notes). 
+- These attached rules define how the attributes are computed at those nodes of the parse tree where the production in question is used to relate a node to
+  its children. 
+
+===========================
+Syntax-directed definition
+===========================
+- It associates with each grammar symbol (whether terminal or non-terminal) a set of attriutees. 
+- It associates with each production, a set of "semantic rules". And these semantic rules are used for coomputing the values of the attributes associated
+  with the symbols that appear in the production.
+
+===============================
+How to evaluate the attributes
+===============================
+For a given string x, we construct its parse tree. Then we apply the semantic rules to evaluate attributes at each node in the parse tree. 
+
+=====================
+Annotated Parse tree
+=====================
+A parse tree showing attribute values at each node is called an annotated parse tree. 80 page or 55 

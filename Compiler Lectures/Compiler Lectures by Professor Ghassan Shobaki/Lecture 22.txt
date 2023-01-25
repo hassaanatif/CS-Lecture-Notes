@@ -1,0 +1,236 @@
+                            ============================================================
+                             Compilers Lecture 22: Syntax-Directed Translation (1)
+                            ============================================================
+
+=============================
+Review from previous lectures
+=============================
+In earlier lectures ,we talked about the different stages of a compiler i.e the Frontend, the optimizer and the backend. We said that the frontend takes
+the high level representation (the source code) and the output of the frontend is the AST (abstract syntax tree). Today, we will learn how we can construct
+the AST based on our parsing techniques. 
+
+==========================================================================
+Example: We will today be parsing and generating an AST for the following:  x = a *3 + b
+==========================================================================
+0. Goal -> Assign 
+1. Assign -> ident = Expr ; //Make an Assign Node
+2. Expr -> Expr + Term      //Make an add Node
+3.          | Expr- Term   //Make a subtract Node
+4.         | Term          $$ = $1 
+5. Term -> Term * Factor   //MAKE Multiply Node
+6.        | Term / Factor  //MAKE Div Node
+7.        | Facotr
+8. Factor -> (Expr)    //$$ = $2 
+9.        | num       // MAKE Numm Node
+10.       | ident     //MAKE Identifier Node
+
+===========================
+Parse Tree for our example
+===========================
+            Goal 
+           Assign
+     ident   =    Expr             ; 
+               Expr +       Term
+               Term         Factor
+           Term  * Factor   ident
+           Factor   num     
+           iden  
+
+==========================
+Conceptually: What is AST
+==========================
+An AST, conceptually, is this parse tree with only the operations that matter in the code generation. Or the operations that correspond to real actions. 
+So we will like to keep the nodes that correspond to real actions and get rid of any nodes that correspond to grammatical substitutions -- you know 
+substituting a grammatical symbol name for another. 
+
+==================================================
+Where are the actual operations in our Parse Tree?
+===================================================
+The "=" sign which is the assignment operator. But what about the leaves which are the identifiers and the numbers? Now we should start thinking in terms
+of code generation. So in terms of code generation, this will result in generating some code because if "a" (which is an identifier) is a variable then 
+this variable -- in other to use in this expression, what kind of code do we have to generate? We have to use a LOAD instruction to bring it from memory. 
+So, these leaves are also interesting. 
+Since our Objective is to construct a data structure that will help us in code generation, then these useful interesting nodes are the ones that we care 
+about and the other nodes can be abstracted away (hence the name "Abstract" syntax tree).
+
+======================================
+Abstract Syntax Tree for our example
+======================================
+So our AST will look like this: 
+                                Assign  
+                         ident         +  
+                                 *       ident
+                            ident   num    
+  
+===================
+Generation of code
+===================
+Load a -> r1 
+Load I3 -> r2  //load immediate of 3 in another register
+Mult r1, r2 -> r3
+Load b -> r4 
+Add r3, r4  -> r5 
+Store r5 -> x 
+
+//By the way, here we are assuming that we have an infinite number of registers. We will leave the process of mapping these virtual registers to the actual
+//physical registers to the stage of Register allocation.
+
+========================================================
+What graph algorithm did we apply to generate the code?
+========================================================
+We applied depth first algorithm to generate this code above. What specific graph traveral technique did we take advantage of? We took the advantage of 
+"Post order graph traversal". WHY? BECAUSE WE FIRST PROCESSED THE LEAVES BEFORE WE PROCESSED THE ROOT. So just with a simple POST ORDER traversal, you 
+can go from an AST to ASSEMBLY CODE.
+
+==========================
+But the question now is...
+==========================
+The question now is how can we get from our grammar or our parse tree to the AST. The key idea is to look at the rules of this grammar and identify the 
+rules that correspond to the set of operations that we care about. And whenever a reduction happens using that rule, we create a Node in a tree. So for 
+rules #9 and #10, we can simply create "Num Node" and "Ident Node". But what about rule#8? Should we make a Node or not (for the paranthesis expression)?
+So in order to answer, whether we should create a Node or not, so if we have something like : a * (3+b). Then we want something like: 
+                 Assign 
+             X           * 
+                    ident     + 
+                           num  ident
+
+So, in fact, with these paranthesis expression, we did not create a new node. So this is already taking the node that coressponds to this expression. So 
+what we are doing is that we are taking the root of the tree for the paranthesized expression and we are making it the right operand of our Mult. So when
+we have paranthesis, we are not actually creating a new node. And remember, what to keep in mind is that this whole thing is recursive. So this process 
+of parsing  the grammmar is recursive and the abstract syntax tree is recursive. So when you have a rule like this: (Expr) , this paranthesized expression 
+can be just the root of a WHOLE BIG TREE. So this (Expr) can be an arbitrarily big expression. So it can have its own tree. So we are basically linking 
+trees. So we are not making a new node here. 
+
+=============================================================================================
+What about the other rules in the grammar that correspond to multiply or divide instructions
+=============================================================================================
+When we are Saying Term goes to Factor (i.e Term -> Factor) we are not doing an operation and thus we are not creating a new node in the AST. But when we 
+are saying: Term -> Term * Factor  , we are indeed creating a new multiply node.
+
+===========================
+How do we make these nodes
+===========================
+A node in the tree will have two children. So making this identifier node, or the number is trivial because these are leaf nodes. We can think of a node as 
+an Object and this object has a type in it (for example: an identifier). And then it must have the actual name of that variable. Or what is more than the 
+actual name of that variable is memory location (or the offset of that variable). So keeping the name (which is symbolic information) is not necessary. It will
+be useful for sure (for example, for debugging purposes), but it is not necessary. However, keeping the offset is important. So we knowing whether the 
+variable was named "x", or "y" or whatever is not important but knowing the number that was stored in those is important.
+So the operations are non-leaf nodes. 
+
+================================================
+What do we need to do to create a multiply node
+================================================
+So since multiply is a binary operation, so it needs two operands i.e the Left operand or the right operand. So in order to do this multiply node, we need 
+to have a pointer to the left operand and the right operand in order to link them together. Now how do we do this? We need a mechanism for passing variables
+or passing certain attributes that are associated with the symbols in this grammar.  How do we this? we will be using the YACC notation.
+
+======
+YACC 
+======
+YACC is a parser generator. So it takes a grammar that we write and the actions associated with each rule (like for rule#1 we have MakeAssignNode etc) in 
+the grammar and using this, it generates C code that does the parsing for you. So it does all of this LR(1) stuff like GoTo table, action table, creating 
+states etc. 
+YACC stands for "Yet Another Compiler Compiler" because it itself is a compiler and it generates a parser for you. And that parser becomes part of the 
+compiler that you are building. 
+
+======
+Bison
+======
+It is a more recent version of this parser generator. 
+
+===========================================
+Notations that these parser generators use
+===========================================
+There is a notation that these parser generators use for each rule in the grammar. They use the "$$" for the left hand side symbol. And for all the symbols
+that appear on the right hand side, they use the $ and then the number of the symbol. Remember that when you count the symbols on the right hand side, 
+everthying counts (whether terminals or non-terminals).
+So for example:  in rule#5: 
+$$ -> $1 $2 $3 
+Term -> Term * Factor        //MakeMulNode($1, $3)  //because I already know that $2 is the multiplication node. 
+
+So why do we need this? Well we need this because in order to construct a multiply node. Suppose, we want to express the same notation for Term goes to 
+Factor. How can we write this? We can do this like this: 
+Term -> Factor -- $$ = $1 //this is just like a pass. I am not actually creating any new node because this is just a substitution. When you are renaming 
+a factor to a term (a grammatical substitution). And similar for rule#6: 
+
+Term -> Term / Factor  -- $$ = MakeDivide($1, $3)
+
+================================================================
+What will be these MakeMultiplyNode and MakeDivideNode be doing?
+=================================================================
+What is tricky about this dollar sign notation is that this attribute can take multiple types. So in our rule#5, what do you think is the right type
+given what we have written so far? What is the type for dollar sign? It is going to be a POINTER TO A NODE. So our MakeMultiplyNode function will be 
+like this: 
+
+MakeMultiNode(Node *n1, Node *n2) 
+ create new node with ptr n 
+ n.left = n1 
+ n.right = n2
+ return  n  
+
+==============================
+The last node that we create
+==============================
+Because we are going bottom up, the last node that we are going to create is going to be the ROOT node. This is because we are starting from the leafs.
+We are building our tree in a bottom up manner. And we are also implying the use of an LR(1) parser (a shift reduce parser). 
+The point is that whenever the parser reduces to rule#5, call the function associated with that rule (i.e MakeMultNode($1,$3)) or execute this action.
+This is the action that we are embedding in a grammar. These embedded actions are the actions that are going to build the tree. 
+For rule#7, we do nothing, we are just passing. We are not creating a new node. We are taking this identifier (which is what the factor is) and making it 
+this Node here (Term). 
+
+======================================================================
+The paramters need not always be $1 and $3, Example of an IF statement
+======================================================================
+IF -> if (cond) Code else Code
+Then, ethe parse tree for this would be something like: 
+
+        if 
+Cond    Then Code     Else code 
+
+//MakeIF(Node * cond, Node * thenCode , Node * elseCode) 
+
+Now in order to write the action, we will need to give three parameters to our MakeIF function i.e the the condition, the then code and the else code. 
+Since IF -> if  ( cond ) Code else Code 
+            $1 $2 $3  $4 $5    $6   $7
+ 
+Our MakeIf function is: MakeIF($3, $5,$7)
+
+//So the dollar signs are not always 1 or 3.
+
+===========
+Leaf nodes
+===========
+They are not internal nodes. They are not linking other nodes. All internal nodes are going to need their children so they can link their children. And the 
+leaves in the AST are stuff like "ident", "num" etc. Well the leaf nodes are different because here you are not linking other nodes. You are just creating a
+node that should have information about this identifier or a number (as far as our example grammar goes). Hence for creating the leaf Node such as MakeNumNode
+or MakeIdenNode, you infact need to pass the token or the actual lexeme as a parameter -- because these are the ones that are coming from the scanner. The
+scanner has classified these as identifiers and numbers but there are actual lexemes coming along with these. 
+So remember the leaf nodes are different. So this dollar sign notation or this way of passing the values from the Low-Level rules to the higher level rules 
+-- so what we are doing here is that we are basically passing the values up. We are passing the values up from the lower level to the higher level rules 
+in the grammar until we get to the top level rule which generates the start variable of a grammar.
+
+=============
+Conclusion
+=============
+Now this is how we will be building the abstract syntax tree. So the idea is that whenever you reduce, the parser is going too execute an action. When a 
+parser does a reduction. 
+
+==================
+One final example
+==================
+Consider at some point our stack looks like the following: 
+ [S3, B3...S2,B2,S1,B1, StackTop]
+
+And we have a reduction as folllows: 
+ A -> B1, B2....Bn
+
+So we can REDUCE by A -> A1, B2,...Bn
+Stacktop = Pop 2n items in the stack 
+push A 
+push GoTo[StackTop][A] //where StackTop is the base state. 
+
+***NOW WE CAN EXECUTE THE ACTION ASSOCIATED WITH THIS RULE IN THE GRAMMAR. In-fact you can execute the action associated IMMEDIATELY AFTER MAKING A REDUCTION.
+   AND OFCOURSE, if you shift, you don't do anything. These actions are associated with reductions and only with reductions. And ofcourse, with some of the
+   reductions we are putting useless actions or the actions that are passing the information up (for example in rule#7 and rule#4) -- so those are pass type
+   of actions, they will pass the information from one node in the derivation tree to the node above it. But with parser shifts there are no actions associated
+   with those***

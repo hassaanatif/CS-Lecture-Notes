@@ -1,0 +1,166 @@
+
+                            ============================================================
+                             Compilers Lecture 21: Parsing (10): LR(1) Parsing, Part IV
+                            ============================================================
+
+===============================
+Issues related to LR(1) parsing
+===============================
+Let us consider an example: 
+St -> Assign | IF 
+IF -> if (cond) Code else Code  
+   -> if (cond) Code 
+Code -> st | {stList}  //We should allow a single statement after the else condition 
+stList -> stList st | Epsilon 
+
+==================================
+Case study of If Else statements
+==================================
+If else statements are interesting when it comes to parsing because the grammar (the above grammar) is ambiguous. Why is it ambiguous? 
+Actually, in the above example, let us (for the sake of simplification) consider the allowance of just a single statement instead of multiple blocks of 
+code for If-Else derivations. Let us now consider the following: 
+                                                                    if (cond1) if (cond2) st1 else st2  <--- (i) 
+Now where is the ambiguity in the above (i.e (i))?  
+The ambiguity is that we are not sure whether the else statement is attached to the first if or the second if. There are two derivations for the above. 
+Ambiguity means that you can come up with 2 possible derivations. (By the way, the language that we generally program with, the else statement is attached 
+to the 2nd if). Now if we try to draw the parse tree for the above example, we will get more than 1 parse trees (making the grammar ambiguous). And also 
+one of these derivations will consist of an else statement for the inner if and the other one of these derivations will consist of an else statement for
+the outer if. 
+If we are doing LR(1) parsing, at some point the placeholder will get to the the end of the st. Example: 
+                                                                                                         If -> if (cond) st. else st.   <--- (ii)
+                                                                                                         If -> if (cond) st.            <--- (iii)
+
+Then it means that everything before the placeholder is already in the stack. Now by the way, what is the lookeahead? Well if we look at the very first 
+production then it says that our statement can be either an assignment statement or an IF statement. Which means that an IF statement can always be followed
+by an "eof" or even "else".  So, in fact, our lookeahad is going to be else and end of file. So in fact, our if statement can be followed by an EOF if it is 
+a complete statement, otherwise it can beb followed by an else. Now when we construct an LR(1) table for this.
+Now (ii) is going to be one of the states. It is not going to be the start state because we will get to that the placeholder gets past all the previous ones.
+But that is the point where we will hit a problem because at that point, do we have a reduction? Yes, we have a reduction in both (ii) and (iii). And let 
+us say that we can reduce by rule#2. BUT, do we have a shift??? YES, we also have a shift.  THe problem here is that when you get to this point and if what
+you are seeing in the file is an else, you can reduce or you can shift -- and this is what we call "SHIFT-REDUCE ERROR", and this is not good. And in fact, 
+if we shift, we will get one of our parse tree derivations and if we reduce then we will get another.
+So, let us list out our parse trees: 
+                               PARSE TREE#1: 
+
+                                       st 
+                                       if 
+                                if   (cond)  st
+                                             If 
+                                      if (cond)   st  else st 
+
+
+                               PARSE TREE#2: 
+
+                                       st 
+                                       IF 
+                            if (cond)  st   else st 
+                                       IF 
+                                  if (cond)  st
+
+
+So now getting back to (ii) and (iii). Let us say that we try to shift, which parse tree will we get? Well, if we shift then we will get the first one because
+if we shift then we are waiting, we are not reducing until we get to a later state (when the placeholder will be somwehere else). And our reduction is going
+to be the statement: IF -> if (cond) st1 else st2
+Similarly, if we reduce then we are going to get the second parse tree. But how did we figure out what kind of parse tree will we get when we do either one
+of the given operations (shift or reduce)? Because we are doing "Bottom-Up Parsing", therefore we start from the leaves and since in the second parse tree
+the leaves are only upto the first statement before we reduce it to "IF" therefore, we were able to make the deduction that if we reduce we are going to 
+get parse tree#2 and if we shift then we are going to get parse tree #1.
+Anyways, this will give us a shift reduce error. 
+ 
+================================
+Again, what does ambiguity mean?
+================================
+Ambiguity means that you can come up with 2 possible derivations.
+
+=============================
+Resolving Shift-Reduce error
+=============================
+When you have a shift-reduce error, strictly speaking, it means that this grammar is not LR(1) grammar. But in-fact, if we can choose whether we want to 
+shift or reduce when both are possible then we can proceed. So, in fact, it is a matter of choosing whether we want to shift or we want to reduce. 
+And in this case, if we choose to shift, we will get the expected behavior (or the expected derivation). 
+
+==========================
+Parser Generator program
+==========================
+We will be using Bison to generate a parser and we have an "If Else" and if you write grammar for "If else", it will tell you that there is a shift reduce
+error and the default is to favor shift instead of a reduce. In-fact, if you disable the warnings in bison, it will give you the default resolution of the 
+conflict which is resolve the conflict in favor of a shift rather than a reduce.  
+
+================
+Ambiguous Grammar
+=================
+An ambiguous grammar is not necessarily bad. And it is not necessarily unparsable. Because all languages have "If else" and people write parsers and grammars
+for those and everything works fine. 
+
+================
+New Example
+=================
+0. Goal -> A 
+1. A -> aA 
+2. A -> a 
+
+========
+State S0
+========
+Goal -> .A , eof 
+A -> .aA, eof 
+A -> .a, eof 
+
+==========
+State S1 //Transition to A 
+==========
+Goal -> A. , eof 
+
+========
+State S2 //ActionTable[S0][a]
+======== 
+A -> a.A, eof 
+A -> a., eof //reduce by rule#2
+A -> .aA, eof 
+A -> .a, eof 
+
+=========
+State S3 //Goto[S2][A] 
+========
+A -> aA., eof //reduce by rule#1 
+
+==========
+State S4 //ActionTable[S2][a] 
+==========
+LOOP TO S3
+
+=================================================
+Important things to remember when entering states
+=================================================
+Whenever you enter a new state, the first question that you should ask is that is there an expansion? And the second question that you should ask after that
+is that is there a reduction?? Expansion here means checking whether there is a non-terminal next to our placeholder and whether the derivations for that
+non-terminal need to be listed out.
+
+==================================
+Goto table for our example grammar
+==================================
+     A 
+S0   S1
+S1   _
+S2   S3
+S3   _
+
+==================================
+Action table for our example grammar
+==================================
+     eof               a 
+S0                     shift to S2  
+S1   ACCEPT
+S2   reduce by r2       S2 //loop
+S3   reduce by r1
+
+==================================================
+Point regarding Left Recursion vs Right Recursion
+==================================================
+If we had 3 "a"s instead of millios a's then it would have put a million states and it would have shifted a million times. And it would have put, in fact,
+2 million symbols on the stack before making the first reduction. When you apply LR(1) parsing to a RIGHT RECURSIVE grammar like the above then you will
+end up with a really big stack.
+LL(1) has its problems with Left-Recursion grammar. It cannot do Left recursion grammar at all. But LR(1) can do BOTH Left Recursive and Right Recursive.
+But with right recursive form, it has this stack problem. It has to do a lot of shifting and it may grow the stack really big. 
+Conclusively, LR(1) parsing works better with Left Recursive grammar. Because LR(1) generates totally different tables for these. 
+
