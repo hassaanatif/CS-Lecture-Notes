@@ -1,0 +1,574 @@
+====
+Chapter 1
+======
+
+=========
+To-Do Stuff
+===========
+201 (226 / 1035) -- Theorem using induction 
+204 (229 / 1035) -- Theorem regarding balanced paranthesis
+211 (236 / 1035) -- Dangling if elses problem
+215 (240/1035) -- Example 4.22 : The following grammar abstracts the \dangling-else" problem:
+215 (240/1035) --  non-context-free language
+
+=======
+Language Processors
+===========
+It reads one language known as the source language and translate it into an equivalent program in another program called the target language. 
+It also report any errors in the source program that it detects during the translation process.
+
+======
+Interpretor
+=========
+Instead of producing a target program as a translation, an interpretor appears to directly execute the operations specified in the source program on inputs
+supplied by the user. Executes the program statement by statement. 
+
+
+==========
+Target program of a compiler
+========
+The machine-language target program produced by a compiler is usually much faster than an interpreter at mapping inputs to outputs. 
+
+=======
+Bytecodes
+========
+it is an intermediate form in java language. These are later on interpreted by the virtual machine. Benefit is that bytecodes compiled on one machine can be 
+interpreted on another achine, perhaps across a network. 
+Java compilers are called "just in time" compilers. They translate bytecodes into machine language before they run the intermediate program to process the 
+input.
+
+=======
+Compiler is not enough
+======
+
+A compiler isn't really enough to create an exectuable target program. A source program may be divided into modules stored in separate files.
+=======
+Preprocessor
+==============
+Collecting the source program is done by a "PREPROCESSOR". It expands shorthands called macros into soruce language statements. 
+
+=======
+Assembler
+=========
+The compiler produces an assembly languuage program as its output because IT IS EASIER TO DEBUG and PRODUCE. An Assembler produces "RELOCATABLE MACHINE CODE".
+
+=======
+Linker
+======
+Large programs are often compiled in pieces, so the relocatble machine code may have to be linked together with other reloctable object files and library files
+into the code that actually runs on the machine. 
+Linker also RESOLVES EXTERNAL MEMORY ADDRESSES, where the code in one file may refer to a location in another file. 
+
+========
+Loader
+=======
+It puts together all the executable object files into memory for execution.
+
+=======
+Language Processing System
+=========
+Source Program ---> [PreProcessor] ---> Modified source program --> [Compiler]--->Target Assembly program ---> Assembler --> reloctable machine code
+ --> [Linker/Loader] (library files. Relocatable object files) ---> target machine code.
+
+=======
+Structure of a compiler
+===========
+Two parts: 
+i) Analysis 
+ii) Synthesis 
+
+====
+Analysis
+=====
+It breaks up the source program into constituent pieces and imposes grammatical structure on them. It then uses this structure to create an intermediate 
+representation of the source program. 
+If the syntax is ill-formed or semantically unsound, then it must provide informative messagse, so the user can take corrective action.
+It also collects information nabout the source program and stoores it in a data structure called a "symbol table". 
+Symbol table is passed along with the intermediate represnetation to the synthesis part.
+This whole phase is known as "front end". 
+
+=========
+Synthesis
+========
+This part constructs the desired target program from the intermediate representation and the information in the symbol table. 
+This whole phase is known as the back end.
+
+========
+Insight look at the structure of a compiler
+==========
+Character stream FED INTO Lexical Analyzer  GENERATES Token Stream
+Token Stream FED INTO Syntax Analyzer GENERATES Syntax Tree
+Syntax Tree FED INTO Semantic Analyzer GENERATES Syntax Tree
+Syntax Tree FED INTO Intermediate Code Generator GENERATES Intermediate Representation 
+Intermediate Representation FED INTO Machine-independent Code Optimzer GENERATES Intermediate Representation 
+Intermediate Representation FED INTO Code Generator GENERATES Target-machine code. 
+Target-machine code FED INTO Machine-Dependent Code Optimzer GENERATES Target-machine code
+
+
+=======
+Machine-independent optimization phase
+===========
+It is a phase between the front-end and the back-end. It is part of some machines. The purpose of this optimization phase is to perform transformations on 
+the intermediate representation, so that the backend can produce a better target program that it would have otherwise produced from an unoptimized intermediate
+representation.
+Optimization is optional. 
+
+======
+Lexical Analysis
+======
+THe first phase of a compiler. It is also called "scanning". 
+The lexical analyzer reads the stream of characters making up the source program and groups the characters into meaningful sequences called "lexemes". 
+
+======
+Lexeme
+====
+For each lexeme, the lexical analyzer produces as output a token of the form: <token-name, attribute-value>
+that it passes on to the subsequent phase, SYNTAX ANALYSIS.
+
+=======
+Syntax Analysis
+============
+This is the SECOND PHASE of compiler.
+It is ALSO KNOWN AS PARSING. 
+Creates a tree-like intermediate representation that depicts the grammatical structure of the token stream. A typical representation is a "SYNTAX TREE', 
+in which each interior node represents an operation and the children of the node represent the arguments of the operation.
+
+===========
+Semantic Analysis
+========
+It uses the syntax tree and the information in the symbol table to check the source program for semantic consitency with the language definition. 
+It also gathers type information and saves it in either the syntax tree or the symbol table for subsequent use during intermediate code generation.
+
+======
+Type checking
+=======
+This is an important part of semantic analysis. The compiler checks that each operator has matching operands. Many programming language definitions require
+an array index to be an integer. The compiler must report an error if a floating point numnber is used to index an array. 
+
+========
+Coercions
+========
+Known as type conversions. 
+
+=======
+Intermediate code generation
+==========
+Syntax trees are the most common ones. Used during syntax and semantic analysis. 
+After this phase, many compilers generate an explicit low level or machine-like intermediate representation which we can think of as a program for an 
+abstract machine. 
+
+=======
+Properties of intermediate representation
+==========
+- Easy to produce
+- Easy to translate into target machine 
+
+==========
+Three-Address-Code
+===============
+Sequence of assembly-like instructions WITH THREEE OPERANDS PER INSTRUCTION. Each operand can act like a REGISTER. The output of the intermediate
+code generatoor cosnists of the three-address code sequence.
+
+---OTHER PROPERTIES OF THREE ADDRESS CODE----
+- Each three-address assignment instruction has at most one operator on the right side.
+- These instructions fix the order in which operations are to be done.
+- Multiplication precedes the addition in the source program. 
+- Compiler must generate a temporary name to hold the value computed by a three-address instruction.
+- Some three-address instructions have fewer than 3 operands.
+
+========
+Code optimizationn
+=============
+Objectives:
+- better/faster target code
+- shorter code
+- target code that consumes less power
+
+=======
+Code Generation
+=====
+It takes as input an intermediate representation of the source program and maps it into the target language. 
+- Registers and memory locations are selected for each of the variables used by the program.
+- Crucial aspect of code generation is the judicious assignment of registers to hold variables. 
+- First operand specifies a destination 
+- # signifies that the number placed after it is treated as an immediate constant 
+
+
+=============
+Storage allocation decisions
+==========
+Thesea re made either durig intermediate code generation or during code generation.
+
+==========
+Symbol-Table management
+=======
+An essential function of a compiler is to record the variable names used in the source program and collect information. 
+These attirbutes provide info about storage allocated for a name, its type, its scope, and in case of procedure names, its types of arguments , the 
+method of passing the argument and the type returned.
+
+==========
+Grouping of phases into passes
+============
+Phases deal with the logical organization of a compiler. 
+Activities from several phases may be grouped together into a PASS that reads an input file and writes an output file. 
+
+==========
+Chapter 2 
+==========
+
+=======
+Syntax/Grammar
+=========
+A grammar naturally describes the hiearchial structure of most programming language constructs. 
+
+======
+Arrowhead
+========
+It means "can have the form". 
+
+==========
+Definition of Grammars
+==========
+A context-free grammar has four components: 
+1. A set of terminal symbols (also known as "tokens"). Terminals are the elemntary symbols of the language defined by the grammar.
+2. A set of nonterminals, sometimes called "syntactic variables". Each non-terminal represents a set of strings of terminals, in a manner we shall describe.
+3. A set of productsoions, where each production consists of a nontermminal, called the head or left side of the produdction, an arrow, and a sequence of
+   terminals and/or nonterminals, called the body or right side of the production.
+4. A designation of one of the nonterminals as the Start symbol. 
+
+======
+Production
+===========
+The intent of a production is to specify one of the written forms of a construct.
+
+============
+Specifying grammars
+=======
+WE specifiy grammars by listing their productions with the productions for the start symbol listed first. 
+
+========
+Nonterminals
+=======
+Represented as "italicized name". Any non-italicized name or symbol may be assumed to be a terminal.
+
+========
+String of terminals
+=========
+A string of terminals is a sequence of zero or more terminals. The string of zero terminals, written as EPISLOn, is called the empty string.
+
+=========
+Derivations
+===========
+We begin from the start symbol and we repeatedly replace a nonterminal by the body of the production for that nonterminal. 
+
+===========
+Language defined by the grammar
+===========
+The terminal strings that can be derived from the start symbol form the language defined by the grammar.
+
+
+============
+Chapter 4: Syntax Analysis
+==============
+
+========
+Context-Free-Grammers or BNF
+==========
+It is used to specify the syntax of the programming language constructs.
+Grammars offer significant benefits for both language designers and compiler writers.
+
+=========
+Other benefits of Grammar
+=========
+- Grammar gives a precise, yet easy-to-understand, syntactic specification of a programming language. 
+- Parser-construction can reveal syntactic ambiguities and trouble spots that might have slipped through the initial design phase of the language. 
+- A grammar allows a language to be evolved or developed iteratively, by adding new constructs to perform new tasks.
+
+======
+Role of a parser
+========
+The parser obtains a string of tokens from the lexical analyzer and verifies that the string of token names can be generated by the grammar for the source
+language.
+Parser can report any syntax errors 
+Parser constructs a parse tree and passes it to the rest of the compiler for further processing. 
+We don't really need to explicitly construct the parse tree since checking and translation actions can be interspersed with parsing. 
+The parser and the rest of the front end could well be implemented by a single module.
+Src prog
+--------->[Lex..] --> token-->[parser]-->Parse Tree --> Rest of Front End --> Intermediate representation 
+
+and all these above use symbol table.
+
+========
+General types of parsers
+===============
+i) Universal (such as The Cocke-Younger-kasami i.e CYK algorithm  and Earley's Algorithm can parse ANY GRAMMAR)
+ii) Top-Down
+iii) Bottom-up 
+
+i) Universal : Too inefficient to use in production compilers. 
+
+ii) Top-down: They build parse trees from the top (root) to the bottom (leaves).
+iii) Bottom-up: Start from the leaves and work their way up to the root. 
+
+===========
+Subclasses of grammars
+================
+i) LL
+ii) LR 
+
+====
+LL
+=====
+Parsers implemented by hand use LL grammars. For exampel: Predictive-parsing aproach works for LL grammars.  
+
+===
+LR
+===
+Usually constructed using automated tools 
+
+=======
+Things performed during parsing
+=========
+Collecting information about various tokens into the symbol table, performing type checking and other kinds of semantic analysis, and generating intermediate 
+code.
+
+=======
+Representative Grammers
+=============
+- We can easily parse constructs that begin with while or int because keyword guides the choice of the grammar production that must be applied to match the
+  input. 
+- The challenge comes whne parsing expressions with associativity and precedence of operators. 
+
+
+=========
+LR grammars suitable for..
+=========
+They are suitable for bottom-up parsing. 
+
+========
+Syntax Error Handling
+============
+We cosnsider the nature of syntactic errors and general strategies for error recovery.
+
+=======
+Strategies for error recovery
+==========
+i) Panic mode
+ii) Phrase-level recovery 
+
+==========================
+Common programming errors
+=========================
+i) Lexical errors: includes mispellings of identifier, keywords, or operators. E.g., the use of an identifier elipseSize instead of ellipseSize and 
+                   missing quotes around text intended as a string.
+                   - Essentially mispelling in variable names or missing quotation marks in a string 
+
+ii) Syntactic Errors : include misplaced semicolon or extra or missing braces. Example: appearance of "case" statement without switch statement is a 
+                       syntactic error (however, usually this is allowed by the parser but later on caught dudring code generation). 
+
+iv) Semantic errors: include type mismatches between operators and operands, e.g. the return of a value in a Java method with result type void.
+
+v) Logical errors: anything from incorrect reasoning on the part of the programmer or the use in a C program of the assignment operator = instead of a 
+                   comparison operator ==. 
+
+========
+Viable prefix property
+================
+When a stream of toekns from the lexical analyzer cannot be parsed further according to the grammar for the language, the parsers experience viable-prefix property.
+It means that they detect that an error has occured as soon as they see a prefix of the input  that cannot be completed to form a string in the language.
+
+
+==============
+Error handling goals in a parsers
+============
+- Report the errors' presence clearly and accurately. 
+- Recover from each error quickly enough to detect subsequent errorsr. 
+- Add minimal overhead to the processing of correct programs.
+
+===========
+Error-Recovery Strategies 
+=========
+The simplest approach is for parser to quit with informative error message when it detects first error. additional errors are uncovered if the parser can
+restore itself to a state where processing of the input can continue with reasonable hopes that the further processing will provide meaningful diagnostic 
+information.
+If errors pile up, it is better for the compiler to give up after exceeding some error limit.
+
+=========
+Recovery Strategies
+========
+i) Panic mode
+ii) Phrase-level
+iii) error-productions
+iv) global-correction 
+
+===========
+Panic-Mode Recovery
+=============
+On discovering error, the parser discards input symbols one at a time until one of a designated set of "synchronizing tokens" is found.
+Simplicity is an advantage here. It is guaranteed not to go into an infinite loop.
+
+==========
+Synchronizing tokens
+=================
+Usually they are delimeters , such as semicolon or } whose role in the source program is clear and unambiguous. 
+
+=========
+Phrase-Level Recovery
+=============
+- Local corection on remaining input when an error is encountered.
+- Done through replacing a prefix of the remaining input by some string that allows the parser to continue.
+- Example: replace a comma by a semicolon, delete an extraneous semicolon, or insert a missing semicolon. 
+- It can correct any input string. 
+- Major drawbakc is the difficulty it has in coping with situations in which the actual error has occurred before the point of detection.
+
+========
+Error Productions
+==========
+- WE can augment grammar for the language at hand with productions that generate the erroneous constructs. 
+- These error productions detects the anticipated errors when an error production is used during parsin. 
+- The parser can then generate appropriate error diagnostics about the erroneous construct that has been recognized in the input.
+
+=========
+Global correction
+==========
+.
+. Skipped for now
+.
+
+===========
+Token Name 
+=============
+It is synonymous for the word "terminal". Terminals are the first components of the tokens output by the lexical analyzer. 
+
+=========
+Non-terminals
+============
+They are the syntactic variables that denote set of strings. The set of strings denoted by nonterminals help define the language generated by the grammar. 
+Non-terminals impose a hierarchical structure on the langauge that is key to syntax analysis and translation. 
+
+
+============
+CFG Formally
+============
+4-tuple notion. 
+i) temrinals
+ii) non-terminals
+iii) productions
+iv) Start symbol
+
+=======
+Derivations
+============
+We begin with the start symbol, each writing step replaces a nonterminal by the body of one of its productions.
+
+=========
+Notations to remember
+==============
+i) derives in one step
+ii) derives in zero or more steps
+iii) derives in one or more steps.
+
+=========
+Sentential form
+===============
+It may contain both terminals and nonterminals and mayb e empty. 
+
+===========
+Sentence of a Grammar G
+================
+It is a sentential form with NO NON-TERMINALS. THAT IS...IT IS A SET OF TERMINALS.
+
+==========
+Language generated by grammar
+======================
+The language generated by a grammar is its set of sentences.
+
+============
+Context Free Language
+=============
+A language that can be generated by a grammar is said to be a context-free language.
+If two grammars generate the same language, the grammars are said to be equivalent. 
+
+============
+Leftmost and Rightmost Derivations
+================
+In leftmost derivations, the leftmost nonterminal in each sentential form is always chosen. 
+In rightmost derivations, the rightmost nonterminal is always chosen; 
+
+============
+Leftmost sententional form
+===================
+If  S DERIVES IN ZERO OR MORE STEPS THROUGH LM alpha then we say that alpha is a left-sentential form of the grammar at hand.
+
+=============
+Rightmost derivations
+====================
+Sometimes called "cannonical derivations".
+
+============
+Parse Tree , FRONTIER OF TREE OR YIELD OF TREE
+==============
+Graphical representation of a derivation that filters out the order in which productions are applied to replace nonterminals.
+Each interior node of a parse tree represents the application of a production.
+The leaves of a parse tree cosntitute a sentential form, called the yield or frontier of the tree.
+
+===================
+Why use regex for lexical analysis?
+====================
+- It provides a convenient way of modularizing the front end of a compiler into two manageable-sized components. 
+- Lexical rules of a language are quite simple most of the time. Grammars being powerful will be an overkill here. 
+- More efficiency. 
+
+============
+When to use Grammars
+============
+They are most useful for describing nested structures such as balanced parantheses, matchingg begin-end's, corresponding if-then-else's and so on.
+These NESTED STRUCTURES cannot be described by regex.
+
+===========
+Resolution of ambiguity
+==============
+The general rule is, "Match each else with the closest unmatched then."
+
+========
+Left Factoring
+============
+Grammar transformation that is useful for Producing grammar suitable for predictive or top down parsing.  When the choice between two alternative productions
+of a non-terminal is not clear, we may be able to rewrite the productions to defer the decision untill enough of the input has been seen that we can make
+the right choice.
+
+=================
+Top-Down Parsing
+=================
+It can be viewed as the problem of constructing a parse tree for the input string, starting from the root and creating the nodes of the parse tree in 
+preorder (depth-first). 
+Top-Down parsing can be viewed as findding a leftmost deriviation for the input string.
+
+=========
+Predictive Parsing
+==============
+It chooses the correct A-production by looking ahead at the input a fixed number of symbols.
+
+============
+Nonrecursive Predictive Parsing
+=========================
+It can be built by maintaining a stack explicitly, rather than implicitly via recursive calls. 
+The parser mimics a leftmost derivation.
+
+==========
+Table driven parser
+============
+It has an input buffer containing the string to be parsed, followed by the endmarker $. 
+We reuse the symbol $ to mark the bottom of the stack, whihc initially contains the start symbol of the grammar on top of $.
+
+=======
+Panic Mode Recovery
+========
+It is based  on the idea of skipping over symbols on the input until a token in a selected set of synchronizing tokens appears.
+
+=========
+Phrase-level Recovery
+=========
+It is implemented by filling in the blank enteries in the predictive parsing table with pointers to error routines. 
+These routines may change, insert or delete symbols on the input and issue appropriate error messages. 
+Alteration of stack symbols or the pushing of new symbols onto the stack is questionable for several reasons. 
