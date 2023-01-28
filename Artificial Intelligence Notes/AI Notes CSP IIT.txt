@@ -1,0 +1,104 @@
+https://donrwalsh.github.io/CLRS/
+https://clrs.skanev.com/index.html
+
+this is the AI is search mindset. 
+Now we are going to make a jump from AI is search to AI is representation. So this is the next big mindset. 
+AI is representation mindset is a little big old school because of new mindsets like AI is machine learning and deep learning etc etc.
+AI is representation mindset is however still a very powerful mindset specailly if our goal is to solve m any problems at the same time. And the reason is that in the atomic 
+agent paradigm, we don't know anything about the state (we cannot go into the state).  We cannot say that this state is sort of very similar to that state ony something has 
+changed. 
+The notion of state similarity is not possible in the atomic state mindset. 
+Faster, scalability etc of solutions.
+
+Most interesting representation is propositional logic. Logic used to be the de-fact standard for presenting new problems in AI for 30 years 40 years (upto 90s).  And towards
+the later part of AI, probability starte to come in and so we will learn on representation of probablistic AI (and that will be baysian networks).  And in all those, we will 
+be looking inside  the state.
+
+Each state variable is a node. So in CSP we are operating in the wolrd of state variables and not in the world of states.
+CSP comes in many many variates. There are CSPs with finite domains (discrete variables) eg: Boolean CSPs incl Boolean Satisfiability (NP Complete).
+There are CSPs with infinite domains (integers, strings etc.) Eg: job scheduling, variables are start/end days for one job. This needs a constraint language e.g.,
+StartJob(1) + 5 <= StartJob(3)
+Linear Constraints are solvable. Non linear are undecidable.
+
+Continuous variables: e.g. start/end times for Hubble telescope observations. 
+                      Linaer constriants solvable in polytime by LP methods.
+
+If you have soft constraints in your CSP then that converts a CSP into a constraint optimization problem because now I have constraints that I need to satisfy them and constraints that I 
+may or may not satisfy them.
+
+==========
+What will be a state in the search space of CSP
+==========
+Assignment to all the variables. If I am talking about assignment to all the variables, am I talking systematic search or local search? Local search!
+I will work in the partial assignment space here. In the partial assignment space, my initial state would be NO ASSIGNMENT whatsoever. What will be my successor function? 
+Let's say that I have already assigned "L" variables. What will I do? I will have to assign some other variable. How many options/vars do I have? N - L variables. And for each
+variable, how many possible do I have? d values. So how many children do I have? (N-L)*d. And all the solutions are at depth "N" when all the variables have been assigned.
+Because all the solutions are at depth "N" then I can sort of use the depth first search. Now here the difficult question? How many leaves do I have? In this way that I have defined
+the problem. How many children at top level? N * d. How many children at 2nd level? (N-1) * d. And all these trees, they keep multiplying. So how many total leaves? N! * (d^(n))
+Using backtracking search, we can reduce our number of leaves drastically upto d^n.
+
+
+========
+Tricks to optimize the backtrack CSP search 
+==========
+Showing smartness in:
+1. Deciding which variable do I pick first.
+2. Deciding which value do I pick first.
+3. Can we detect inevitable failure early? (THIS IS THE MOSTTT IMP MAGIC  IN CSP).
+
+
+=============
+How do we pick which  variable to assign
+==========
+Select a one with maximum constrains (i.e. neighbors).  
+
+===========
+Two heuristics for CSP map coloring
+==========
+1. choose var with fewest legal values 
+2. Degree heuristic (choose var with most contrains of remaining vars).
+
+==========
+Interesting ideas from 16 min onwards
+============
+If we narrow our search space, our search will get faster, but we are more susceptible to failure because then we will have less values remaining for other vars (and we want the
+opposite of that). So what we want is the least constraining value (i.e. the value which constrains the other variables the least). If I have one assignment for a variable such
+that it reduces the space for the possible domains much more and there is some other value such that it reduces the domain space less then we will the use the value that reduces
+the domain space less then obviously, we will pick the value that reduces the domain space less, in the hope that we will find a solution in  the subtree.
+VERY INTERESTING FACULTY ANALOGY AT 18:09 minutes from video#40.
+
+=========
+Final note on these heuristics so far
+=========
+Just combining the heuristics:
+1. Minimum remaining value of a degree heuristic 
+2. Least constraining value
+
+This can  get us to 1000 queens problem.
+
+===========
+Constrain Propogation and inference
+========
+Now we are able to discuss these interesting topics because of the two heuristics above.
+
+============
+Difference between forward checking and arc consistency
+==============
+Forward checking is only enforcing constraints from  assigned to unassigned. Arc consistency enforces constraints between unassigned.s
+
+============
+Shortcomings of ARC  inconsitency. Consider a three-cycle graph with domains {R,G}. Now if you assign "A" the value "R" then are there any remaining possible values in its 
+neighbors? Yes. So arc inconsistency does not always work i.e. it does not detect all possible failures.
+
+===========
+Combination of Search and inference
+===========
+Search alone is costly because we are uninformed. Inference alone is costlly because of exponential time (in fact, both search and inference are exponential). So what do we do? 
+We combine the two.
+
+
+========
+Systematic search vs Local search
+==========
+In local search, we search in the solution space. 
+In systematic search, we typicaly do PARTIAL ASSIGNMENT SPACE.

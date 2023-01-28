@@ -1,0 +1,336 @@
+--PENDING---
+Figure 2.5
+Calculation of expected value
+Figure 2.14
+how is chess a semi-dynamic environment?
+Difference between environment and state
+Why table driven approach to agent construction is doomed to failure. (Pg47 i.e  66/1151)
+What did newton do for square roots
+Condition action rule
+Simple-reflex-agent pseudocode on pg#49 (68/1151)
+figure 2.13
+First order logic
+First order probability models
+Discrete problems  
+Note that any given goal can be reached from exactly half of the possible initial states (Exercise 3.4)
+3.2.3  -- real world problems
+
+
+---Interesting  facts--
+We have many examples showing that this can be done successfully in other
+areas: for example, the huge tables of square roots used by engineers and schoolchildren prior
+to the 1970s have now been replaced by a five-line program for Newton’s method running
+on electronic calculators. 
+
+infinite state spaces using donald knuth's floor, factorial and sqroot function. Generation of mathematical expressions, circuits, proofs, programs, and other recursively defined objects.
+
+
+-----Other notes--
+A specific permutation of variables is k n
+I am starting from pg#39 
+Information gatherig (important part of rationality) 
+Actions that are  expected to maximize performace (or in other words a ctions that modify future percepts) is known as "information  gathering". 
+
+Another example  of  information gatheringn: Exploration undertaken by the vacuum cleaning agent in an initially unknown  envrionment. 
+• The “geography” of the environment is known a priori 
+
+Rationality maximizes expected performance, while perfection maximizes actual performance.
+
+
+SECTION 2.3.1
+
+Software agents (aka software robots or softbots).
+
+Fully observable, partially observable and unobservable. 
+Competitive  vs cooperative environment
+
+Ucertain -- not fully observable , not determinsitic
+
+Episodic vs sequential environment 
+static vs dynamic envrionment 
+semiddynamic -- agent's performance score does change but the environment doesn't.
+
+Taxi driving actions are continuous because we also have to account for steering angles etc.
+
+Environment Class -- variables in an environment all grouped together.
+
+Agent program -- implements agent function 
+agent function -- does mapping from percepts to actions.
+
+Architechture -- consists of sensors, actuators associated with a computing device with an agent program running on top of it (the program itself is not really part of the architecture).
+ 
+   Agent = architecture + program
+
+
+========
+Agent program
+===
+Takes current percept as input from sensors. Returns an action to the actutuators.
+
+======
+Agent function
+======
+Takes the entire percept history as an input.
+
+============
+Handling partial observability  
+===============
+We can  do this  by keeping track of the part of  the world it can't see now. This can be done by maintaining some sort of internal state that depends on the 
+Internal  state depends on percept's history and  thereby reflects at  least some of the unobserved aspects of the current state.
+
+=========
+Model
+=======
+Knowledge about how the  world works. Typicallly we include internal state information in it.
+
+======
+Model Based Agent
+======
+Current percept is combined with the old internal state to generate the updated descirptions of the current state, based on the agent's model of how the world works.
+
+================================
+How to achieve an agent's goals
+================================
+1. Searching
+2. planning 
+
+========
+How is Searching/Planning different from the condition rules
+=========
+We ask questions like:
+1. What will happpen  if I do such and such?
+2. Will that make me  happy?
+ 
+
+==========
+Goal based agent 
+==========
+It can update its knowledge (or alter its behavior) to fit the new conditions/environment. So we can say that it possseses adaptability. In reflex agent, we would have to rewrite many
+condition action rules. We can  easily change  our goal to a new one.
+
+=========
+Utility Function
+========
+It is internalization of the performance measure.
+
+=======================================
+Rational agent in a utility based agent
+=======================================
+When utility function and the external performance measure are in agreement then an agent chooses actions to maximize utiltiy and it will be considered rational according to the
+external performance measure.
+
+=========
+Interesting facts about Utility based AI
+===========
+Is beneficial when there are conflicting oals (for ex: speed and safety), the utlity function specifies an appropriate tradeoff. When there is uncertainty in all the possible goals 
+then it must provide a way in which the likelihood of success can be weighed against the importance of goals. It calculates the maximal expected value of the utility function, it does 
+this by choosing the action with maximum expected utility.
+
+=====
+Utility
+=======
+The quality of being useful.
+
+===========
+How is Expected utility computed
+============
+It is computed by averaging over all possible outcome states, weighed by the probability of the outcome.
+
+=========
+Global definition of  rationality
+=========
+Those agenet  functions that  have the highest performancne -- is turned into a "local" constraintn on rational-agent designs that can be exprssed in a simple program.
+
+========
+Imp thing about goal based agents
+==========
+They just provide a binanry distiction between "happy" and unhappy states. They are not a general performance measure.  A more genneral one should allow commparison of different world
+states  according to exactly how happy they would make the agent.
+
+============
+Utility
+=============
+It  determines to extent of happiness of an  agent.
+
+=========
+Utility function
+===========
+It is an internalization of the performance measure. 
+
+==========
+Utility based  Agent
+===========
+Useful when there are conflicting goals, only some of which can be achieved. Utility function specifies the appropriate tradeoff.   
+Useful when there are several goals, n n oneof which can be achieved with certaintny.  
+Utility provides a way in which the likelihood of success cann be weighed againsnt the importance of goals.
+A rational utility bb ased agenet chooses actions that  maximizes the expected utility of theaction outcomes -- that is the utility  the agent expects to derive, on average, given 
+the probabilities and utilities of each outcome.
+
+==========
+Performance standard
+========
+It distinguishes part of the incoming percept as a reward (or penalty) that provides direct feedback on the quality of the agent's behavior.
+
+========
+Learning in Intelligent agents
+=======
+It can be summarizedd as a process of modification of each componenet of the agent t o bring the components into closer agreement with the available feedback information, thereby
+improving the overall performance of the agent.
+
+=======
+Problem solving agent
+===========
+Goal based agent that uses atomic representation.
+
+============
+Planning agent
+============
+Goal based agents that use factored or structured representations are usually called planning agents.
+
+========
+Open Loop
+=========
+When an agent ignores percepts when executing its solution.
+
+==========
+State space
+============
+i) Intiial state
+ii) actions
+iii) transition model
+
+========
+Path
+=========
+A path in  the states is a sequence of states connected by a sequence of actions. 
+
+
+==========
+Solution
+=========
+A solution to a problem is an action that leads from the initial state to a goal state.
+
+=====
+Path cost function
+=========
+It measures the solution quality. Optimal solution has the lowest path cost among all the solutions.
+
+=======
+8 queens formulation
+========
+i) Incremental formulation : At each step, you place one queen on the board
+ii) Complete-state formulation: You  start with 8 queens and move them around.
+
+Path cost doesn't matter in 8 queen problem.
+
+ 64 · 63 · · · 57 ≈ 1.8 × 1014 possible sequences to investigate in 8 Queen problem.
+
+==========
+Frontier
+=========
+The set of all leaf nodes available for expansion at any given point is called the frontier. It is also called "open list".
+
+========
+Search strategy
+=========
+Just refers to how an algorithm chooses to expand a node.
+
+=======
+Infinite search tree
+===========
+If you have loops in your path then the search problem is infinite because there is no limit to how one can traverse a loop. 
+
+
+============
+Redundant path
+============
+If there is more than one way to get to the goal state then that is a redundant path.
+
+NOTE: Loopy paths are a special case of redundant paths.
+
+=====
+Explored set / Closed list
+=========
+It remembers every expanded/visited node.
+
+==========
+Difference between nodes and states
+=======
+Two different nodes can have the same world state if that state is generated via two different search paths.
+
+==========
+Appropriate data structure for explored set
+=========
+Hash table.
+
+========
+Canonical form
+===========
+Logically equivalent states should map to the same data structure. In case of states describedby sets, a bit vector representation or a sorted list without repitition would be canonical. 
+
+
+=============
+Measuring problem-solving performance
+===========
+There are 4 ways to evaluate an allgorithm's performance: 
+i) Completeness
+ii) Optimality 
+iii) Time complexity
+iv) Space complexity.
+
+
+===========
+Complexity in AI
+==========
+It is not the same as the one in data structures and algos because here we don't deal with an entire graph. In fact, we initially start off with just part of the graph and keep 
+expanding from there. So we take into account the following things:
+i) Branching factor "b" : Maximum number of successors of any node
+ii) Depth "d" :the number of steps along the path from the root
+iii) Maximum length "m" of any path in the state space.
+
+======
+Time
+====
+Measuredin the number of nodes generated. 
+
+=======
+Space
+======
+Maximum number of nodes stored in memory.
+
+=====
+Total cost
+======
+Total cost = search cost + path cost of the solution found
+
+=========
+Blind search
+==========
+Also known as uninformed search. All they can do is generate successors and distinguish a goal state from a non-goal state. 
+
+
+===========
+Informed search
+============
+Also known as "Heuristic search". They know whether one non-goal state is more promising than another.
+
+======
+BFS
+======
+Shallowest unexpanded node is chosen for expansion first. GIves us the shallowest goal. Now the shallowest goal is not necessarily the optimal one.
+
+=======
+Note about exponential complexity
+=======
+exponential-complexity search problems cannot be solved by uninformed methods for any but the smallest instances.
+
+========
+Uniform cost search
+===================
+It expands the node n withthe lowest path cost g(n). We order our queue by pathcost. Goal test is applied to a nodewhen it is selected for expansion rather than when it is first genrated.
+This algorithm is optimal in general. UCS is guided by the path costs rather than by the depth, therefore we don't characterize its complexity in terms of b and d. 
+
+======
+Why is uniform cost search always optimal
+====
+Answer on pg85
