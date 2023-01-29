@@ -1,0 +1,833 @@
+further topics: dld, busses, quantum mechanics, string theory 
+- In very olden times, you had a network card and it basicallly just had hardware, firmware, software etc. However in today times, our network 
+  cards have their own operating systems. So it is up to the operating systems to decide the route of the network packets as well. 
+- If you have taken a database course then you should know sharding. 
+- If you go to GRE, GAT or other competetive tests or job interviews, you will atleast have 1/3rd question from operating system. 
+
+=========================
+OS Concepts in Practice
+=========================
+- Managing industry grade databases/MISs 
+- Backup, performance, security 
+- Example: Apache worker pools
+  So if you have a web server and if you have 500 users coming in per second. 1000 is the extreme case in stress testing. Then it that case you
+  need to have an understanding of worker pools. If you are a system admin then you need to have a good understanding of worker pools. 
+- If you're doing anything of high performance then you need to have an understanding of operating systems. 
+- System Administration 
+- Telecom (you get to travel a lot)
+- IT and Networks 
+- Research and development 
+- UI/UX 
+- Anything that computer touches!
+
+===============================
+More on system administration
+===============================
+- Very well paid. Data science etc. But very well paid job 
+- It poses problems that you solve. The better problems you solve, the easier your life is. 
+- If you solve a problem once then you don't have to solve it again because your system basically administers itself.  
+
+
+========================================
+Trandition topics covered in the course
+========================================
+- Intro to OS 
+- Processes 
+- Threads & Synchronization 
+  A lot of time will be spent on this. It is a very real concept. Extremely important. 
+- Deadlocks -- seriously pathetic topic. It is useless. It takes around 2-3 weeks. So much time. The only solution in the end is restarting the 
+               computer. That is the industry solution. In the book, it has been written that nobody actually does this. 
+
+- Memory management -- most important concepts are here. Semaphores etc are here
+- Filesystems and devices -- concepts involved in actual practice 
+- Protection and security -- this is essentially the whole point of the operating systems. In berkley's course it is in the last. But not everyone 
+                             is able to cover this. You need to pick and choose to be able to cover everything. 
+
+
+===============================================
+Extremely important From Industry's perpsective
+================================================
+- Containers and virtualization -- If you go into not even the industry, but a small problem in a real world then you need to have a understanding 
+                                   of these. And nobody covers them because these came out in the 2010s. In further addition of the book, these 
+                                   topics have been appended at the end but their weight is not justified because of them being appended in the 
+                                   last portion of the book.
+- Cloud computing
+- Provisioning  -- If you go anywhere reasonable in system administration then you will find the concept applicable there. The concept can be
+                   explained in 10 mins. 
+- Mobile operating systems -- they have a very big impact on today's computing. Their perspectives are significantly different in terms of 
+                              perspective and security.
+- Security models -- the book has severly outdated security models. If you are trying to do anything remotely scalable.
+- Industry grade security management systems -- these are security management systems ke how do you look at an organization. For instance you have
+                                                a multinational company located in different cities etc and you release some sort of sensitive 
+                                                information to these franchises, how do you make sure that your data is not being compromised
+                                                anywhere. How do you guarantee. 
+A lot of the theory in OS is very practical. 
+
+=======================================
+Why do we not solve many problems in OS
+========================================
+- This story starts from like 1940s (and even before that actually). The problems that have come up unpe kaafi lambi chori discussion hui hai. 
+- An example is recursion. It was invented in the 1980s. You had Fortran, but Fortran couldn't do recursion. But you could do it in Assembly. 
+- If you try to solve these problems on your own, maybe you can in a decade, but the point of Operating Systems is the solutions that people
+  have already come up with. 
+
+============================================
+Other things to keep in mind for the course
+============================================
+- Concepts are easy but numerous
+- Understand the theme - not the details. 
+
+================================
+Some info on the reference books
+=================================
+- Operating Systems Concepts by Silberschatz is a mediocre books. Nobody actually needs it for some reason but it is part of our course.
+- Then we have the Tanenbaum book. Tanenbaum also had another book for writing a very small operating system. Minix. 
+- Linus Torvalds took the help from Tanenbaum's book to write Linux operating system as a student. 
+- So Tanenbaum's book is the goto boook if you want to write your own operating system. Tanenbaum's book name is "Operating System: Design and 
+  Implementation". 
+- The third recommended book is "Linux System programming by Robert Love". It is a very old book but it is a very good book if you want to 
+  understand the intricacies of Linux commands. It is a very good book from a core Linux developer's perspective.
+
+
+===================================
+Brief History of Operating Systems
+===================================
+
+===============================
+There were no operating systems
+===============================
+- So initially we had large computers and we had to feed them punch cards. The card was made out of cardboard. The card had slots. You could punch
+  some of those holes. So we had mapped all our assembly instructions onto this cardboard. Instead of loading the instructions from a vague 
+  memory location, you load the instructions onto a card. So the whole "Fetch-Decode and Execute Cycle" back in the day was a very mechanical 
+  process. It was very tedious. SO the person handling all this was called an "operator". And that was a technical job. And this is what 
+  programming was back in the day and this is how (mechanically) Ada Lovelace programmed a computer.
+
+- "Preparing ENIAC for a series of runs was an incredibly involved process. First, detailed instructions had to be written defining the problem and
+   procedure for solving it. These instructions were programmed by adjusting switches manually and inserting thousands of cables into as many as 
+   forty large plug boards. A team of five operators might work several days on the external wiring and many more days searching for errors and 
+   correcting them" - Breakthrough to the computer Age, Harry Wulforst, Charles Scribner's & Sons Pub.,1982
+
+
+===================
+Late 1940s - 1950s
+===================
+- This is when the concept of "stored program" was introduced aka reload a program. 
+- In other words, we could define a generalize algorithm of doing something and then perform that thing. So instead of writing an entire code for
+  calculating the factorial of 5, we had intrdouced a sort of punch cards for calculating the factorial of a number n and then we fed it that 
+   number n. 
+- So essentially reusability of code was introduced here. Aka Subroutines. This was a HUGE breakthrough during that time. 
+- However, the job of the operator had now become quite hard. Because he had to keep a track of when to feed the subroutine and when to feed the 
+  number.
+- Next problem: So you have this program that calculates the factorial and you have another program that calculates the fibbonacci and you take 
+  all these cards and then the computer asks you what kind of facotrial would you like to obtain. Now you, as an operator, have to get up and fix
+  the number by pressing the dials etc. During this time the computer system isn't doing anything. So people back then decided that while the 
+  operator was a fixing a number, why don't we have another operator that will feed it the next punch cards. 
+- Computers were also really expensive back then. They filled the entire room and it had 2kb memory back then. So you need to utilize the system 
+  during that time. And this is how the CONCEPT OF TIME SHARING SYSTEMS was introduced. SO since the input taking process was too long, we had 
+   taken the advantage of that and had introduced the concept of time sharing processes. 
+- So what people realized was that instead of having to have this operator take these punch cards one by one, we can have them in batches. And 
+  that really affected us in terms of how we thought about computers.
+- IBM SHARE (Soceity to Help Alleviate Redundant Effort) 
+===============
+The OS emerges:
+================ 
+   - Batch Systems: 
+     - What you can do is that you can make decisions now. If this certain condition is being met then take this card out or take the other card
+       out. And immediately after that, the mechanics had become so complex that people had to shift to transistors. They had to resort to 
+       electronics.  
+      - Now that we have introduced the concept of input and output, we have some outputs that are going to the printer and some output that would  
+        be responsible for turning leds on and off, so you need to have some sort of a mechanism for the reusability of those devices as well. 
+      - Essentially, we are going from this operator handling both the programming and the machine to a segregation between the two. 
+      - We have two problems here: i) To calculate the facotiral, ii) To feed it to the machine , till now only one person (operator) has been  
+        doing both these tasks, but slowly we are creating a demarcation i.e there will be two kinds of people: ones who write the program and the
+        other that feed the program. And that is where the concept of "Job Control languages" come in.  
+      - So lets say that we have to calculate the fibonnaci and factorial of a number, these are two jobs. Among these, which one will go first and 
+        whicch one will go later, and which one of these will stop when and for how long etc will be included in the job control. This was done
+        by the human operators. Obviously, human have their limitations so eventaully this led to programs which when given everything together 
+        they could separate them.  
+      - The common I/O routines for devices access were the precursors to device drivers.
+
+
+========
+1960s
+========
+
+==================
+Multiprogramming
+==================
+- The culmination of all the above advancements is what led to the concept of multi-programming. 
+- The idea is to keep several programs in memory at once; switch between them. 
+- Works because of the speed mismatch between I/O and CPU 
+    ======================
+    A bit of a background
+    ======================
+    - Nowadays, programs and data are stored in the same memory but this was not always the case. A group of very talented computer scientists, 
+      mathematicians and physicians had to sit down and decide whether to store the program and data in the same memory or whether to keep them 
+      separated. And this group was headed by John Von Neumann. And resultantly, this kind of architecture was called "Vonn Neumann Architechture".
+      This topic will be more relevant when we start talking about security because security is very much affected by this and then we have to 
+      cater to that. 
+         ===================================
+          How is security affected by this?
+         ===================================
+         - Well if you take the example of calculating the factorial of a number, then everyone knows how to do that on a piece of paper. Now when
+           you have senstive data, you cannot just let everyone know and hence keeping both this data and the program in a single memory could 
+           cause security issues. SO obviously people have tried keeping the data and program in separate memories but THAT IS ALSO PROBLEMATIC.
+           
+
+============
+System call
+============
+- Due to the above, the concept of system call was introduced. 
+
+================================
+Conversational interaction (I/O)
+=================================
+- A back and forth process 
+
+
+
+
+=========================================
+December 9, 1968: The mother of all demos
+==========================================
+- Presented by Douglas Engelbart. He had presented all the things in a single demo. There was a screen, gui (the window could be moved), there 
+  was a keyboard, a mouse and all the things that we take for granted. All these were invented and presented in this one demo. Very groundbreaking
+  at that time. 
+- Douglas had presented this at : Stanford Research Institute (SR), Augmentation Research Center 
+- Fall Join Computer Conference 
+- He introduced: Computer mouse, Windows, Video conferencing, WYSIWYG word processing (with cut & copy) & embedded objects, collaborative editing, 
+                 version control and hypertext.
+
+
+=====================
+Late 1960s - 1970s
+=====================
+During this time, you started to have the concept of what is called an operating system. Before this you had dispersed programs. Arbitrary people
+coded random system calls, so what was decided at that time was that all of these things which was the operator portion: the things that a human
+had to do before which are repetitive and which are used by everybody, we just gather all of these into a single place and we write a program
+that does all of these things on its own. So the core capabilities of handling your hardware, I/O and decisions like that should be put into a 
+single program, so that we can make that program secure and we are able to take all the decisions of that program from there instead of having 
+these dispersed pieces of code. So that piece of code was called the operating system. It was a system (because it was a collection of different
+modules). And because it was used to replace the operator, hence why it was called "THE OPERATING SYSTEM".
+=========
+1968-1969
+==========
+- User-friendly interfaces: mouse, windowing 
+- Data networking 
+
+
+                                       =====================================
+                                        LECTURE 2: Intro Continued, etc
+                                       =====================================
+
+
+============
+1970s
+============
+Before 1970s, the operating systems were not portable since they had to be written in the assembly language of the target processor. 
+
+=====
+UNIX
+=====
+- This was the first portable operating system. And it was written in a high level language, so it could be easily compiled or assembled for every other 
+  machine.
+- Now we know that operating system acts as an interface between a hardware and an application. Now instead of having hardware here, in the 1970s, we had 
+  introduced another softare below the operating system and this is what allowed the portability of the operating system. Now this software below the 
+  operating system will act as a hardware for our operating system and our OS would not be able to tell the difference. 
+- If you have a software that acts like a hardware machine then that is called a virtual machine. Because it is not a physical machine, it is a virtual 
+  machine.
+
+==============================
+1972: Virtual machine (VM/370)
+==============================
+- The concept of virtual machine requires this software, below the OS, to be sufficiently complex to emulate a hardware. 
+- Plus this software will have to run over a hardware. 
+- Interestingly a virtual machine can run on another OS which in turn runs on a hardware. 
+      ===========
+      The problem
+      ============
+      - Due to the limitation of the memory size, these virtual machines could not meet their full potential. 
+
+=======================
+Microprocessors emerged 
+========================
+- CP/M: Dominant OS for 8080 family of machines 
+    - CCP: command interpreter 
+    - BDOS: file operations, priting, and console I/O 
+    - BIOS: character I/O, disk sector read/write 
+    - 1977: Apple II 
+
+
+====================
+Late 1970s: Home PCs
+====================
+Those computers which you could keep at home. 
+
+=======================================
+1975: Early PCs - targeted at hobbyists
+=======================================
+- Connect your own teletype or use a front panel
+- Built from a kit 
+- Write your own OS drivers
+
+
+==================================
+1977: Buy & Use personal Computers
+==================================
+Commodore was extremely popular here because it was programmable.Examples of PCs: 
+- Apple II
+- Commodore PET
+- Radio Shack TRS-80 Model I
+
+===========
+Followed by
+===========
+- Atari 400, Atari 800, TI-99/4A, Vic 20, Commodore 64
+
+
+=========
+1980s
+=========
+
+=============
+1981: IBM PC
+=============
+- This is that architecture that I am coding in right now. 
+- Open architecture: Microsoft OS 
+- Only proprietary component was the BIOS 
+- IBM has always been at the leading frontend 
+
+=================================
+1982: BIOS was reverse engineered
+=================================
+- PC Clones (Compaq, Columbia, Dell, HP,..)
+
+
+===============
+1984: Macintosh
+================
+
+=========================
+Client-server networking
+=========================
+- Network file systemms
+
+
+=========
+1990s
+==========
+======
+1990
+======
+-This was the time when Douglas Englebar's demo was further popularized.
+-Window 3.0 
+
+=====
+1993
+=====
+- Windows NT : New OS built from scratch 
+
+=============================
+Open Source Operating Systems
+==============================
+- Linux, FreeBSD, NetBSD, OpenBSD, Solaris 
+- All these above operating systems are known as : *nix
+
+
+=================
+1995: Windows 95
+=================
+- They used the same horrile architecture of DOS.
+- Built-in internet support (networking usually via modem) 
+- It became popular because it had the internet support within it. 
+
+========================
+Network PC, Thin Clients
+========================
+- You have a server and a bunch of computers are connected to that server using its resources or computation power.
+
+=======
+PCI BUS
+=======
+Plug and play hardware. Before this when you inserted a mouse, or a keyboard then you had to restart the PC.
+
+======
+2000s
+======
+- PC based machine virtualization: 
+   - Virtualization support added by Intel & AMD (2006)
+   - Virtual machine migration 
+
+
+=======================================
+Cloud computing, on demand data centers
+=======================================
+- Popularized by AWS. At that time the famous one was EC2 
+
+
+==========
+Security
+==========
+- A very fast paced improvement occured in the 2000s.
+- Hardware authentiation, storage encryption, digital rights management
+
+     =======================
+     Trusted platform module
+     ========================
+     - It is essentially trusted computing. 
+     - It is actually a chip in your computer which can bring trust to your machine.
+     - Very wide scope in R&D 
+     - In simple words, lets consider we are in one room and there is another computer in the other room, how do you know if there is a virus on 
+       the other machine or not. This is the essence of trusted computing. Problem is, whatever you ask...the other machine can lie.
+     - In the end, the industry giants decided to create a chip called "Trusted platform module" to verify the reliability of the other machine.
+     - Windows bitlocker works on the TPI chip.
+
+     ===============================
+     Trusted Computing API for Java
+     ===============================
+     - This support was added in 2007. 
+     - This was done by several people. 
+
+- Personal firewalls 
+- Address space layout randomization
+
+
+
+========================
+BOOTING
+========================
+- It is called booting before the operating system has to wear boots before it is able to run.
+
+===============
+What runs first
+===============
+- Boot loader: A program that loads a bigger program (e.g. the OS).    
+- Interestingly, it is not the FIRST program that runs on your computer. Because before you start booting, you have to do a couple of other things. 
+  For example: When you click on the power button then it will be the concern of the architecture where the electric current will go first. Will it
+  go to the motherboard, or the processor etc. It is not BIOS's concern
+
+======
+BIOS
+======
+After the above, the program called "Bios" is loaded. It is called "basic input output system". These are the core set of functionalities through
+which we can interact with our hardware. Like turn off this specific thing. Or direct power to this specific component etc etc.
+- BIOS has become outdated but the academia is not aware of it. 
+
+
+==========
+Bootloader
+==========
+- It is a booting program and it decides which operating system to run from which memory etc etc.  
+
+
+=============
+Load selector
+=============
+- In the olden times, you could use punch cards to start or boot up a computer or you had a dial called a load selector and you had to tell it what
+  thing to select.
+- So this dial from the olden times has now been converted to the selector for the windows when booting up.
+- So this is essentially the responsibility of the boot loader.
+- As the history progressed, hard disks had enlargened. During the boot loader times, the hard disk size was small. However, nowadays, especially, 
+  in the servers, you have tons of (10s of 10s of) hard disks. 
+
+
+==========================================
+Architecture limitation of a boot selector
+===========================================
+- The architecture of the boot loader is very very small (just a few kilobytes of memory). 
+- To tackle this limitation we have the concept of Multi-stage boot loader (chain loading). 
+
+========================================
+Multi-stage boot loader (chain loading)
+========================================
+Now we know that bios is a very small program and it passes control to a software called boot loader whose architecture is also very small. And due to the 
+architecture limitations, we cannot make it big. Then what do we do? SO we make the first stage boot loader to be small that will take the control from 
+the bios. And then after this, we don't have any limitation, so we will pass the control to a very large software called the "second stage" boot loader. 
+Interestingly, you can also implement a "Thin Client" with the help of a boot loader. 
+
+=======================
+First Stage boot loader
+========================
+- Often primitive enough that an operator could enter the code via front panel switches...or it could sit in the first block of a disk.
+
+===================
+Second stage loader
+===================
+- More sophisticated and inclued error checking. Second stage loader may give the user a choice: 
+    - Different operating systems 
+    - Boot a test program 
+    - Enable diagnostic modes (e.g., safe boot) in the OS
+
+
+============================================
+Transfer of control to the Operating System
+============================================
+- When the boot loader finishes loading the OS, it transfers control to it. 
+- The OS will initialize itself and load device drivers as needed.
+
+=====================
+Intel/AMD PC Startup
+=====================
+- CPU reset at startup
+- Start execution at 0xffffffff0. As soon as we start our CPU, our instruction pointer will be initialized with this address. At this address, we 
+  should have our BIOS. If the BIOS is not there then the system will not start. 
+  - Jump instruction to BIOS code in non-volatile memory 
+    - Near the top of 32-bit addressable memory map 
+    - Reset vector: jump to firmware initialization code
+   
+- Processor starts in Real Mode
+  - 20-bit address space (top 12 address lines held high) 
+  - Direct access to I/O, interrupts, and memory 
+
+
+=============
+More on BIOS 
+=============
+- BIOS = Basic Input/Output System
+- Found in Intel-based 16 and 32-bit PCs 
+- Code resident in ROM or non-volatile flash memory 
+- Background: CP/M (MS-DOS was almost a clone) 
+   - Console Command Processor (CCP)
+   - Basic Disk Operating System (BDOS)
+   - Basic Input/Output System (BIOS): all the devices interfaces 
+
+
+===========
+PC Startup
+===========
+- Power-on self-test (POST) 
+- Detect video card's BIOS - execute vide initialization 
+- Detect other device BIOS - initialize 
+- Disply start-up screen 
+- Brief memory test 
+- Set memory, drive paramteres 
+- Configure Plug & Play devices: PCIe, USB, SATA, SPI 
+  - Assign resources (DMA channels & IRQs)
+- Identify boot device:
+   - Load block 0 (master boot record) to 0x7c00 and jump there. 
+
+========
+CheckSum
+=========
+- The method of checking any software is known as checksum. It is a very fast process.
+
+==================================
+Booting Windows (XP/2003/2000/NT)
+==================================
+- The BIOS does not know the file systems (because Operating system is the one that handles file systems) but can read disk blocks 
+- MBR = Master Boot Record = Block 0 of disk (512 bytes) //It is just one boot record of our entire hard disk
+  - Small boot loader (chain loader, <= 440 bytes)
+  - Disk signature (4 bytes)
+  - Disk partitin table (16 bytes per partition * 4) 
+  
+- BIOS firmware loads and executes the contents of the MBR 
+- MBR code scans through partition table and loads the Volume Boot Record (VBR) for that partition. 
+  - Identifies partition type and size
+  - Contains Instruction Program Loader that executes startup code
+  - IPL reads additional sectors to load NTLDR 
+
+- Because every partition (or Volume in terms of hardware vernacular) can have different types of operating system, so the MBR code scans through the partition table and then 
+  loads the Volume Boot Record (VBR) for that partition. Volume Boot Record, in turn, will identify the location for the Operating System files.
+
+
+===================================
+When you install Linux in the MBR
+===================================
+- When you install Linux in the MBR, then the Linux will be the one that will have control over your entire MBR. If there is a VBR of a windows
+  that is already present then the Linux OS will read that VBR and it will add it as one of its options. However, the boot loader of windows does
+  not do the same. It will not even search for any other operating systems VBR.
+- Isliye, if you install Windows first and then you install Linux then you can boot both of them. But if you install Linux first and then you 
+  install Windows then windows will overwrite the MBR. Although Linux will still be presented on the Drive but the windows has just overwritten 
+  the MBR.
+
+
+==============================
+Booting Other Systems on a PC
+==============================
+- Example: GRUB (Grand Unified Boot Loader)
+- It is a third party boot loader and has become the industry standard. It supports Windows, Linux, Solaris and everything else. 
+- GRUB is so powerful that you can boot up your windows and while doing so you can disable your network card.
+- MBR contains GRUB Stage 1 //Stage 1 is essentially first stage boot loader 
+   - Or another boot loader that may boot GRUB stage 1 from the Volume Boot Record 
+
+- Stage 1 loads Stage 2: 
+   - Present user with choice of operating systems to boot 
+   - Optionally specify boot parameters
+   - Load selected kernel and run the kernel
+   - For Windows (Which is not Multiboot compliant), 
+      - Run MBR code or Windowws boot menu 
+      - Multiboot specification: 
+         - Free Software Foundation spec on loading multiple kernels using a single boot loader.
+
+
+==============
+PCs and (U)EFI
+===============
+- In 2005, people came up with the idea of UEFI (Unified Extensible Firmware Interface). 
+- The whole point of UEFI was to eliminate the concept of stages and just let the BIOS whatever the operating system is. 
+- Typically used for 32 and 64-bit architectures 
+  - Including Macs, which also have BIOS support for Windows 
+- It is essentially a new way of booting 
+- Goal is to create a successor to the BIOS with no restrictions on running in 16-bit 8086 mode with 20-bit addressing.
+
+
+==============
+UEFI Includes
+==============
+- Preserved from BIOs 
+  - Power Management (Advanced Configuration & Power Interface, ACPI) 
+  - System management components from the BIOS 
+- Support for larger disks
+  - BIOS only supported 4 partitions per disk, each up to 2.2 TB per partition
+  - EFI supports max partition size of 9.4 ZB (9.4 x 10^21 bytes)
+- Pre-boot execution environment with direct access to all memory
+- Device drivers, including the ability to interpret architecture - independent EFI Byte Code (EBC)
+- Boot manager: Lets you select and load an OS
+   - No need for a dedicated boot loader
+   - Stick your files in the EFI boot partition and EFI can load them
+- Extnesible: extensions can be loaded into non-volatile memory
+
+===========
+EFI Booting
+===========
+- No need for MBR code (ignore block 0)
+- Read GUID Partition Table (GPT) 
+  - Describes layout of the partition table on a disk (blocks 1-33)
+- EFI understands the FAT file system
+  - Apple's EFI knows HFS+ in addition 
+- Read programs stored as files in the EFI system partition: 
+  - Windows 7, Vista, WIndows 2008 (64-bit Microsoft Systems). 
+    - Windows Boot Manager (BOOTMGR) is in the EFI partition
+  - NT (IA-64): IA64Idr
+  - Linux: elilo.efi (ELILO = EFI Linux Boot Loader)
+  - OS X: boot.efi
+
+====================================================
+A Virtual Machine that runs directly on the hardware
+====================================================
+- Yes, it exists. And it is called "XEN". Most often, the cloud computing platforms run on XEN. Even Amazon is suspected to have run on XEN.
+
+========================
+Virtual Machine Manager (VMM)
+========================
+- A virtual machine manager is a software that is responsible for starting the virtual machine.
+
+
+===========
+Hypervisor
+===========
+- Those VMMs that run bare bones on the hardware are called "Hypervisors".
+- The best example is XEN. Xen will have only those things that are necessary for talking to the hardware and the translating tools. SO essentially
+  you now have a lightweight OS which is also a VMM.
+
+
+                               ==================================================
+                               Lecture 3: Definitions, Concepts and Architecture
+                               ==================================================
+
+=====================
+Mechanisms & Policies
+=====================
+- There are two major perspectives in OS. 
+- Mechanisms are essentially "the how". How to achieve something
+- Policies refers to "what". What do we want to do. 
+- Most of the discussion is around mechanisms because it is the design and implementation of OS. 
+
+
+===========
+Mechanisms
+===========
+- Presentation of a software abstraction:  Memory, data blocks, network access, processes 
+- Keep mechanisms, policies, and permissions separate.
+
+========
+Policies
+========
+- Procedures that define the behavior of the mechanism: allocation of memory regions, replacement policy of data blocks 
+- Permissions 
+- These originate from business rules
+
+
+===========
+Processes
+===========
+- Mechanism: Create, terminate, suspend, switch, communicate 
+- Policy: who is allowed to cretae and destroy processes? What is the limit? What processes can communicate? Who gets priority? 
+
+
+============================
+What is an operating system
+============================
+- A program that provides controlled access to resources: CPU, Memory, display, keyboard, mouse, persistent storage, network.
+- This includes: naming, sharing, protection, communication
+
+======================
+Architectures of OS
+======================
+
+
+===============
+1. Monolithic
+===============
+- You view OS one big chunk of executable. It has everything that you need. And it is all loaded into the RAM at once. 
+- Kisi zamanay mein, it was very feasible because it is highly efficient. But it is very difficult to maintain and secure. Because you have to 
+  recompile the whole thing after you make changes to the code. 
+==========
+2. Modular
+===========
+- Your OS is essentially divided into modules. You say that printer will have its separate modules, video card will have its own etc etc. We will 
+  only load the module that we need and we will not load any other modules.So if you have a server where you know you are not going have a printer
+  then you can comment out the include printer module file. Your OS resultantly becomes lightweight. 
+
+
+.
+
+.
+.
+.                             SKIP 
+.
+.
+.
+
+
+                                       ==============================================================================
+                                        Operating Systems 07 - Signals, Inter-Process Communication, Examples (Urdu)
+                                       ===============================================================================
+
+==========================
+Parent and Child processes
+=========================
+We have seen two ways of creation of processes:
+i) Init()
+ii) Fork() -- it duplicates the process. 
+
+
+======
+Problem 
+=======
+We have two processes. The child cannot communicate with the parent and the parent cannot communicate with the child. We need to find a way to do 
+interprocess communication. to achieve that we have many ways. 
+
+====================
+Funfact on mergeSort
+======================
+MergeSort essentially lends itself to parallelism. It can be parallelized very easily. Just like Quicksort. But Insertion sort cannot be parallelised so 
+easily. 
+
+===============================
+Why interprocess communication 
+===============================
+If we sort a million elements list will take a lot of time. We can break it down into two separate things and we can sort those pieces individually. 
+Time will not take the same as before. We can give one half of the list to one processor and the other half to the other processor.  
+
+===================
+cin command in c++
+===================
+It doesn't take input from the console. It takes input from the standard input. And the standard input in general is the console but it can be something else 
+as well. 
+When we start a program our input can come from network, graphics card etc etc. But if we do not specify where we want to take the input from then it is 
+going to take that input from a specific buffer which is the standard input. Similarly, we will provide it with an output slot. If you don't provide it 
+that it will go to the standard output.
+In general, standard input and standard output are both the console. We also have a buffer for the error which is known as the "Standard error" and it goes
+to the console.
+Whenever we write a "cat" command then it gets a standard input and a standard output.  And then we have a Wc, which is going to have its standard input 
+and its standard output. WC gives us the word count. The pipe plugs the standard output of the first command into the standard input of the second command.
+Cat is going to do its own thing (which is going to give the output to the standard output), and the terminal has relocated our standard output to the 
+standard input of the WC command. WC doesn't know that the cat is giving it its data.
+So essentially, cin is not the console input. It is the standard input. 
+So piping CAT and WC command is an example of interprocess communication.  
+If you do something like: cat a.txt   | wc -l 
+
+The above is the fastest way of calculating the number of lines.
+
+=======
+DirectX example
+=======
+If you are installing an application and it tells you to install DirectX first then that is a very good example of interprocess communication because the 
+installation process will wait until the directx process is done. This is done through waiting.
+=========
+Wc command
+===========
+It takes standard input and gives standard output. WHenever we run a program, if we just specify that we want input then where is that input going to come 
+from. 
+
+==================
+Killing a process
+==================
+Whenever we are about to terminate through OS then the OS sends a signal to that process. For example, if that process has some data in its queue writing
+to the RAM then it is going to allow the program to do so before it is able to terminate it. For example, when closing MS-Word, it gives a signal to the MS
+Word and MS-Word warns us that the data is not saved. OS doesn't know about the internal logic of a process.
+
+========
+Cascading
+=========
+It is a general thing. It is the domeno effect. Cascading is the propogation of effect from one location to another. When killig a process, this cascading 
+effect happens. 
+
+========
+Program is not responding
+======================
+When the program stops responding to the signals sent by the OS, we get this message. The OS just wants the program to respond to it. So if our program
+doesn't respond to the OS (even if it is working or doing work in the background) then according to the OS, it is stuck.  The OS cannot decide whether the 
+program has stuck or it will get back to normal after sometime (related to THEORY OF AUTOMATA).
+In case of browser, our browser is sending signal to the javascript but javascipt is not receiving the signal.
+
+=========
+Signals 
+=========
+They inform processes of asynchrnous events. If we are doing something and another event occurs (like user input). 
+Processes may specify signal handlers (some piece of code which handles signals or interrupts). For example, our program can specify that it wants
+to handle "CTRL + C" command. 
+Processes can poke each other (if they are owned by the same user). 
+
+- Sending a signal: 
+  - kill (int pid, int signal_number)  //kill is equivalent is to sending a signal. 
+- Detecting a signal: 
+  - signal (signal_number, function) //signal is equivalent to receiving a signal. 
+
+//signal #9 is the most famous one in POSIX standard to terminate the programm. 
+//for example:  kill -9   PID    . //-9 doesn't allow a process to communicate with its children when terminating it. It terminates immediately.
+
+=======
+kill -9
+=======
+In all POSIX compliant systems, if we type kill -9 , then there is no discussion in this, it will force quit. 
+
+=====
+Example code
+==========
+int main () {
+
+   signal(SIGINT, handler); //example of event driven programming. We are registering an event handler.
+   while (1); 
+
+}
+
+void handler (int sig) {  //registering an event handler
+   "Signal", sig;
+}
+
+=============================
+Explanation of the above code
+=============================
+Our program runs in an infinite loops but whenever we do CTRL + C then at that particular instance in time, the OS is going to send a signal to
+this process.
+
+=======================================
+Use case of interprocess communication
+=======================================
+If we have a list of one million numbers.
+========================================
+Does fork() duplicate the child process?
+========================================
+Today, most of fork() is copy-on-write. So it won't duplicate. 
+
+=============
+Copy on write
+=============
+If we have a memory address space (let's call it SUM) and the child process decides to write in that chunk then that chunk will copied to that 
+address space. So we are not duplicating one million. We are still fine. The issue is that P1 and P2 are different processes and they will be 
+scheduled differently. Whenever we switch context between them then that is going to be a slow process. 
+So we want to run these in parllel. If we have two different cores then one of them is going to be on one core and the other is going to be on the 
+other core. If we have just one core then they will context-switch only.
+Context-switch is the only issue that we have to face (when the number of duplicates is greater than the # of cores). Memory mapping is not the issue here.
